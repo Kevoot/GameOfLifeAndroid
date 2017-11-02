@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="mobileappdevelopment.kevinholmes.gameoflife.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="8dp">
+
+        <SurfaceView
+            android:id="@+id/surface"
+            android:layout_width="match_parent"
+            android:layout_height="495dp"
+            android:layout_weight="1"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <ImageButton
+                android:id="@+id/cutButton"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/plus"
+                android:layout_weight="0.10" />
+            <ImageButton
+                android:id="@+id/copyButton"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/plus"
+                android:layout_weight="0.10" />
+            <ImageButton
+                android:id="@+id/saveButton"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/plus"
+                android:layout_weight="0.10" />
+            <ImageButton
+                android:id="@+id/sqlButton"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/plus"
+                android:layout_weight="0.10" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
