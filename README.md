@@ -2,7 +2,7 @@
 
 Simulating cellular automata on an android drawable canvas
 
-__TODO: Update mockup to include initializing the canvas, including random generation or fingerpainting on the canvas
+*TODO: Update mockup to include initializing the canvas, including random generation or fingerpainting on the canvas
 
 
 # App Mockup
