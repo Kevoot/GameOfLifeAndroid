@@ -13,8 +13,8 @@
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp">
 
-        <SurfaceView
-            android:id="@+id/surface"
+        <LinearLayout
+            android:id="@+id/cellGridView"
             android:layout_width="match_parent"
             android:layout_height="495dp"
             android:layout_weight="1"
@@ -50,6 +50,13 @@
                 android:layout_weight="0.10" />
             <ImageButton
                 android:id="@+id/sqlButton"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/plus"
+                android:layout_weight="0.10" />
+            <ImageButton
+                android:id="@+id/randomizeButton"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
                 android:scaleType="fitXY"
