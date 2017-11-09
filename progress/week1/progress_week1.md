@@ -1,4 +1,4 @@
-#Week 1 Progress Report
+# Week 1 Progress Report
 
 Whats been done:
 * Basic GoL algorithm - Kevin
