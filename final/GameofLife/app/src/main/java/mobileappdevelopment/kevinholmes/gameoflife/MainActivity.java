@@ -16,22 +16,35 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import java.util.Random;
+import java.util.concurrent.RunnableFuture;
 
 public class MainActivity extends AppCompatActivity {
     private Paint mAliveCellPaint;
     private Paint mDeadCellPaint;
-    private Paint mBackgroundPaint;
     public static int mScreenSizeX;
     public static int mScreenSizeY;
     public static int xGridSize;
-    public static int yGridSize;
-    public static int xAdjust;
-    public static int yAdjust;
-    public Handler mHandler;
-    public static final String TAG = "main";
-    private int [][] mCellGrid;
-    private boolean gridInitialized;
-    private CellGridView mCellGridView;
+    private static int yGridSize;
+    private int xAdjust;
+    private int yAdjust;
+    public final Handler mHandler = new Handler();
+    private static int [][] mCellGrid;
+    private static int[][] mColorGrid;
+    final int delay = 1000; //milliseconds
+
+    final Runnable mRunnable = new Runnable() {
+        public void run() {
+            mHandler.removeCallbacks(this);
+            step();
+            DrawGrid();
+            mHandler.postDelayed(this, delay);
+        }
+    };
+
+    public static boolean cutSelected = false;
+    public static boolean copySelected = false;
+    public static boolean saveSelected = false;
+    public static boolean dbSelected = false;
 
 
     @Override
@@ -52,12 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        Paint paint = new Paint();
-        paint.setColor(Color.parseColor("#CD5C5C"));
-        Bitmap bg = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bg);
-        canvas.drawRect(50, 50, 200, 200, paint);
         LinearLayout ll = (LinearLayout) findViewById(R.id.cellGridView);
+
         ll.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -72,48 +81,93 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ImageButton randomizeButton = (ImageButton) findViewById(R.id.randomizeButton);
-        randomizeButton.setOnClickListener(new View.OnClickListener() {
-
+        final ImageButton cutButton = (ImageButton) findViewById(R.id.cutButton);
+        cutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                initRandomGrid();
+                // Pause simulation
+                if(!cutSelected) {
+                    cutSelected = true;
+                    mHandler.removeCallbacks(mRunnable);
+                    // TODO: Begin cut fragment
+
+                } else {
+                    cutSelected = false;
+                    mHandler.postDelayed(mRunnable, delay);
+                }
             }
         });
 
-        ll.setBackgroundDrawable(new BitmapDrawable(bg));
+        final ImageButton copyButton = (ImageButton) findViewById(R.id.copyButton);
+        copyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Pause simulation
+                if(!copySelected) {
+                    copySelected = true;
+                    mHandler.removeCallbacks(mRunnable);
+                    // TODO: Begin copy fragment
 
-        // mCellGridView = (CellGridView) findViewById(R.id.cellGridView);
+                } else {
+                    copySelected = false;
+                    mHandler.postDelayed(mRunnable, delay);
+                }
+            }
+        });
 
+        final ImageButton saveButton = (ImageButton) findViewById(R.id.saveButton);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Pause simulation
+                if(!saveSelected) {
+                    saveSelected = true;
+                    mHandler.removeCallbacks(mRunnable);
+                    // TODO: Begin save fragment
 
-        // holder = mCellGridView.getHolder();
+                } else {
+                    saveSelected = false;
+                    mHandler.postDelayed(mRunnable, delay);
+                }
+            }
+        });
 
-        // holder.addCallback(callback);
+        final ImageButton dbButton = (ImageButton) findViewById(R.id.dbButton);
+        dbButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Pause simulation
+                if(!dbSelected) {
+                    dbSelected = true;
+                    mHandler.removeCallbacks(mRunnable);
+                    // TODO: Begin db fragment
 
-        /*Surface surface = holder.getSurface();
-        surface.unlockCanvasAndPost(null);
-        Canvas canvas = surface.lockCanvas(null);
-        mScreenSizeX = canvas.getWidth();
-        mScreenSizeY = canvas.getHeight();
-        surface.unlockCanvasAndPost(canvas);*/
+                } else {
+                    dbSelected = false;
+                    mHandler.postDelayed(mRunnable, delay);
+                }
+            }
+        });
 
-        // initGrid();
-        // RandomizeGrid();
+        final ImageButton randomizeButton = (ImageButton) findViewById(R.id.randomizeButton);
+        randomizeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mHandler.removeCallbacks(mRunnable);
+                initRandomGrid();
+            }
+        });
     }
 
     private void initRandomGrid() {
+        // Create a grid of cells and a grid of colors for those cells
         mCellGrid = new int[xGridSize][yGridSize];
+        mColorGrid = new int[xGridSize][yGridSize];
 
-        mHandler = new Handler();
-        final int delay = 2000; //milliseconds
+        RandomizeGrid();
+        RandomizeColors();
 
-        mHandler.postDelayed(new Runnable(){
-            public void run(){
-                RandomizeGrid();
-                DrawGrid();
-                mHandler.postDelayed(this, delay);
-            }
-        }, delay);
+        mHandler.postDelayed(mRunnable, 1000);
     }
 
     private void DrawGrid() {
@@ -121,23 +175,26 @@ public class MainActivity extends AppCompatActivity {
         paint.setColor(Color.GREEN);
         Bitmap bg = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bg);
+
+        // Draw background
+        canvas.drawRect(0, 0, mScreenSizeX, mScreenSizeY, mDeadCellPaint);
+
+        // Use colors from grid, coloring each segment that has a "1" value in the CellGrid
         for(int i = 0; i < xGridSize; i++) {
             for(int j = 0; j < yGridSize; j++) {
                 if(mCellGrid[i][j] == 1) {
-                    canvas.drawCircle(i * xAdjust, j * yAdjust, 10, mAliveCellPaint);
-                }
-                else {
-                    canvas.drawCircle(i * xAdjust, j * yAdjust, 10, mDeadCellPaint);
+                    paint.setColor(mColorGrid[i][j]);
+                    canvas.drawCircle(i * xAdjust, j * yAdjust, 5, paint);
                 }
             }
         }
         LinearLayout ll = (LinearLayout) findViewById(R.id.cellGridView);
+        ll.setBackground(null);
         ll.setBackgroundDrawable(new BitmapDrawable(bg));
     }
 
     public void RandomizeGrid() {
         Random rand = new Random();
-
         for(int i = 0; i < mCellGrid.length; i++) {
             for(int j = 0; j < mCellGrid.length; j++) {
                 int n = rand.nextInt(10)+ 1;
@@ -151,8 +208,59 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void RandomizeColors() {
+        Random rand = new Random();
+
+        for(int i = 0; i < mCellGrid.length; i++) {
+            for (int j = 0; j < mCellGrid.length; j++) {
+                int r = rand.nextInt(255);
+                int g = rand.nextInt(255);
+                int b = rand.nextInt(255);
+                mColorGrid[i][j] = Color.argb(255, r, g, b);
+            }
+        }
+    }
+
     public void step() {
         // Do one step in simulation
+        int[][] future = new int[xGridSize][yGridSize];
+
+        // Loop through every cell
+        for (int l = 1; l < xGridSize - 1; l++)
+        {
+            for (int m = 1; m < yGridSize - 1; m++)
+            {
+                // finding no Of Neighbours that are alive
+                int aliveNeighbours = 0;
+                for (int i = -1; i <= 1; i++)
+                    for (int j = -1; j <= 1; j++)
+                        aliveNeighbours += mCellGrid[l + i][m + j];
+
+                // The cell needs to be subtracted from
+                // its neighbours as it was counted before
+                aliveNeighbours -= mCellGrid[l][m];
+
+                // Implementing the Rules of Life
+
+                // Cell is lonely and dies
+                if ((mCellGrid[l][m] == 1) && (aliveNeighbours < 2))
+                    future[l][m] = 0;
+
+                    // Cell dies due to over population
+                else if ((mCellGrid[l][m] == 1) && (aliveNeighbours > 3))
+                    future[l][m] = 0;
+
+                    // A new cell is born
+                else if ((mCellGrid[l][m] == 0) && (aliveNeighbours == 3))
+                    future[l][m] = 1;
+
+                    // Remains the same
+                else
+                    future[l][m] = mCellGrid[l][m];
+            }
+        }
+
+        mCellGrid = future;
     }
 }
 
