@@ -46,6 +46,12 @@ public class CellGridView extends View {
     // Delay in milliseconds between each simulation step
     public int delay;
 
+    public boolean highlight;
+    public int x1=0;
+    public int x2=0;
+    public int y1=0;
+    public int y2=0;
+
     // Handler for running simulation loop
     public final Handler mHandler = new Handler();
 
@@ -123,6 +129,15 @@ public class CellGridView extends View {
 
         setBackground(null);
         setBackgroundDrawable(new BitmapDrawable(bg));
+
+        // Added by James 11/10 - This will draw the selected box
+        //Todo: Change the colors and maybe make it if it is only selected
+        if (true) {
+            paint.setColor(Color.rgb(100, 100, 100));
+            paint.setStrokeWidth(10);
+            paint.setStyle(Paint.Style.STROKE);
+            canvas.drawRect(x1, y1, x2, y2, paint);
+        }
     }
 
     public void RandomizeGrid() {
@@ -201,5 +216,11 @@ public class CellGridView extends View {
 
     public void resume() {
         mHandler.postDelayed(mRunnable, delay);
+    }
+
+    @Override
+    public boolean performClick() {
+        super.performClick();
+        return true;
     }
 }

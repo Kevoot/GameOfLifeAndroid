@@ -35,6 +35,37 @@ public class MainActivity extends AppCompatActivity {
 
         mCellGridView = (CellGridView) findViewById(R.id.cellGridView);
 
+        // Added by James 11/10 - Sets the x and y box for selected area
+        // Todo: Adjust the values so the box is actually where the person touched
+        View.OnTouchListener handleTouch = new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        mCellGridView.x1 = (int) event.getX();
+                        mCellGridView.y1 = (int) event.getY();
+                        mCellGridView.x2 = mCellGridView.x1;
+                        mCellGridView.y2 = mCellGridView.y1;
+                        //mCellGridView.pause();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        mCellGridView.x2 = (int) event.getX();
+                        mCellGridView.y2 = (int) event.getY();
+                    case MotionEvent.ACTION_UP:
+                        v.performClick();
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        };
+
+        mCellGridView.setOnTouchListener(handleTouch);
+
+
+
         /* TODO: Need to fix button interactions, so only one is selectedable at any given time
         *  additionally, placing some highlighting on the button during selection and disabling
         *  the rest would be nice
@@ -116,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
                 mCellGridView.initRandomGrid();
             }
         });
+
     }
 
     @Override
