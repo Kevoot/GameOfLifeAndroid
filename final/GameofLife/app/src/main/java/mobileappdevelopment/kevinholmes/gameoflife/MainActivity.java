@@ -32,16 +32,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Pause simulation
-                if(!cutSelected) {
-                    cutSelected = true;
+                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
                     mCellGridView.pause();
+                    // TODO: Copy contents to local DB
                     mCellGridView.deleteSelected();
                     mCellGridView.unselect();
-
-                    // TODO: Begin cut fragment
-
-                } else {
-                    cutSelected = false;
                     mCellGridView.resume();
                 }
             }
@@ -57,13 +52,14 @@ public class MainActivity extends AppCompatActivity {
                 //      the simulation when we cut or can we just keep it running?
                 // Kevin - I think we still want to copy the values out before destroying those cells.
                 //         database should automatically get updated with a copy of that selection
-                //         every time a copy or cut operation occurs.
-                if(!copySelected) {
-                    copySelected = true;
+                //         every time a copy or cut operation occurs. But this is the copy function
+                //         so no deletion
+
+                // Getting rid of those previous variables, just make sure there's a selection first
+                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
                     mCellGridView.pause();
-                    mCellGridView.deleteSelected();
-                } else {
-                    copySelected = false;
+                    // TODO: Copy the cell grid values into the local DB (Will have to scale to get
+                    // correct values)
                     mCellGridView.resume();
                 }
             }
@@ -74,13 +70,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Pause simulation
-                if(!saveSelected) {
-                    saveSelected = true;
+                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
                     mCellGridView.pause();
-                    // TODO: Begin save fragment
-
-                } else {
-                    saveSelected = false;
+                    // TODO: Save whole grid to DB
                     mCellGridView.resume();
                 }
             }
@@ -91,14 +83,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Pause simulation
-                if(!dbSelected) {
-                    dbSelected = true;
+                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
                     mCellGridView.pause();
                     // TODO: Begin db fragment
 
-                } else {
-                    dbSelected = false;
-                    mCellGridView.resume();
                 }
             }
         });
