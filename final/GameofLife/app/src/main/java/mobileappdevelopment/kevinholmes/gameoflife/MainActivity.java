@@ -36,22 +36,21 @@ public class MainActivity extends AppCompatActivity {
         mCellGridView = (CellGridView) findViewById(R.id.cellGridView);
 
         // Added by James 11/10 - Sets the x and y box for selected area
-        // Todo: Adjust the values so the box is actually where the person touched
         View.OnTouchListener handleTouch = new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        mCellGridView.x1 = (int) event.getX();
-                        mCellGridView.y1 = (int) event.getY();
+                        mCellGridView.x1 = (int) (event.getX()/2.2);
+                        mCellGridView.y1 = (int) (event.getY()/1.7);
                         mCellGridView.x2 = mCellGridView.x1;
                         mCellGridView.y2 = mCellGridView.y1;
                         //mCellGridView.pause();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        mCellGridView.x2 = (int) event.getX();
-                        mCellGridView.y2 = (int) event.getY();
+                        mCellGridView.x2 = (int) (event.getX()/2.2);
+                        mCellGridView.y2 = (int) (event.getY()/1.7);
                     case MotionEvent.ACTION_UP:
                         v.performClick();
                         break;
@@ -79,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
                 if(!cutSelected) {
                     cutSelected = true;
                     mCellGridView.pause();
+                    mCellGridView.deleteSelected();
+                    mCellGridView.unselect();
+
                     // TODO: Begin cut fragment
 
                 } else {
@@ -93,11 +95,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Pause simulation
+                // James - Thinking that if I understand this correct, cut should just make
+                //      the cells dead in the selected area. If this is correct, should we pause
+                //      the simulation when we cut or can we just keep it running?
                 if(!copySelected) {
                     copySelected = true;
                     mCellGridView.pause();
-                    // TODO: Begin copy fragment
-
+                    mCellGridView.deleteSelected();
                 } else {
                     copySelected = false;
                     mCellGridView.resume();

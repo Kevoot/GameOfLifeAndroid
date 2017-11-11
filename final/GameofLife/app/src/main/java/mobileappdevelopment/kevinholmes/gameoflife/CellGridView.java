@@ -131,12 +131,17 @@ public class CellGridView extends View {
         setBackgroundDrawable(new BitmapDrawable(bg));
 
         // Added by James 11/10 - This will draw the selected box
-        //Todo: Change the colors and maybe make it if it is only selected
-        if (true) {
-            paint.setColor(Color.rgb(100, 100, 100));
-            paint.setStrokeWidth(10);
+        if (SelectedMin()) {
+            paint.setColor(Color.rgb(255, 255, 255));
+            paint.setStrokeWidth(5);
             paint.setStyle(Paint.Style.STROKE);
-            canvas.drawRect(x1, y1, x2, y2, paint);
+            //lock the grid to the dot grid
+            x1 = x1 - (x1%xAdjust);
+            x2 = x2 - (x2%xAdjust);
+            y1 = y1 - (y1%yAdjust);
+            y2 = y2 - (y2%yAdjust);
+
+            canvas.drawRect(x1-5, y1-5, x2-5, y2-5, paint);
         }
     }
 
@@ -218,9 +223,56 @@ public class CellGridView extends View {
         mHandler.postDelayed(mRunnable, delay);
     }
 
+    // James - needed so android studio wont yell at me for doing the touch listener
     @Override
     public boolean performClick() {
         super.performClick();
         return true;
+    }
+
+    // James - allows the selected box to appear only if it is large enough
+    private boolean SelectedMin(){
+        return (Math.abs(x1-x2) > 20 || Math.abs(y1-y2) > 20);
+    }
+
+    // James - un-select the box
+    public void unselect(){
+        x1 = 0;
+        x2 = 0;
+        y1 = 0;
+        y2 = 0;
+    }
+
+    //James - Delete what is in the selected box
+    public void deleteSelected(){
+
+        x1 = x1/xAdjust;
+        x2 = x2/xAdjust;
+        y1 = y1/yAdjust;
+        y2 = y2/yAdjust;
+
+        //Swap if the box is dragged backwards
+        if (x1 > x2){
+            int temp = x1;
+            x1 = x2;
+            x2 = temp;
+        }
+
+        if (y1 > y2){
+            int temp = y1;
+            y1 = y2;
+            y2 = temp;
+        }
+
+        // Make the cells in the selected box dead
+        for(int i = x1; i < x2; i++) {
+            for(int j = y1; j < y2; j++) {
+                mCellGrid[i][j] = 0;
+            }
+        }
+
+        /* Redraw the grid and unselect the box */
+        DrawGrid();
+        unselect();
     }
 }
