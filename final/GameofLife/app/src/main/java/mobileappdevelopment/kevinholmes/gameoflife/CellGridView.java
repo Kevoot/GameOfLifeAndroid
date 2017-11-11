@@ -9,9 +9,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.LinearLayout;
 
 import java.util.Random;
 
@@ -26,9 +25,10 @@ public class CellGridView extends View {
     // Value for any void space (should use background setting instead of painting
     // as opposed to paint each individual cell with this)
     private final Paint mDeadCellPaint;
+    private final OnTouchListener mTouchHandler;
 
     // Raw View dimensions
-    public int mScreenSizeX, mScreenSizeY;
+    public int mViewSizeX, mViewSizeY;
 
     // Adjusted grid sizes, as making the grid equivalent to screen size is far too
     // expensive to iterate through
@@ -64,6 +64,7 @@ public class CellGridView extends View {
             mHandler.postDelayed(this, delay);
         }
     };
+    private Bitmap mCurrentBg;
 
     public CellGridView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -82,20 +83,69 @@ public class CellGridView extends View {
         mDeadCellPaint.setColor(Color.BLACK);
         mDeadCellPaint.setStrokeWidth(2);
         mDeadCellPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
+        // Added by James 11/10 - Sets the x and y box for selected area
+        mTouchHandler = new View.OnTouchListener() {
+        // Modulus operations "clip" selection box to a grid location for easy translation later on
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        x1 = (int) (event.getX());
+                        while(x1 % xAdjust != 0) {
+                            x1 -= 1;
+                        }
+                        y1 = (int) (event.getY());
+                        while(y1 % yAdjust != 0) {
+                            y1 -= 1;
+                        }
+                        x2 = x1;
+                        y2 = y1;
+                        pause();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        x2 = (int) (event.getX());
+                        y2 = (int) (event.getY());
+                    case MotionEvent.ACTION_UP:
+                        while(x2 % xAdjust != 0) {
+                            x2 -= 1;
+                        }
+                        while(y2 % yAdjust != 0) {
+                            y2 -= 1;
+                        }
+                        v.performClick();
+                        break;
+                    default:
+                        break;
+                }
+                Paint paint = new Paint();
+                Bitmap tempBg = Bitmap.createBitmap(mCurrentBg);
+                Canvas canvas = new Canvas(tempBg);
+                paint.setColor(Color.rgb(100, 100, 100));
+                paint.setStrokeWidth(10);
+                paint.setStyle(Paint.Style.STROKE);
+                canvas.drawRect(x1, y1, x2, y2, paint);
+                BitmapDrawable bd = new BitmapDrawable(tempBg);
+                setBackgroundDrawable(bd);
+                return true;
+            }
+        };
     }
 
     public void initRandomGrid() {
-        mScreenSizeY = this.getHeight();
-        mScreenSizeX = this.getWidth();
+        mViewSizeY = this.getHeight();
+        mViewSizeX = this.getWidth();
 
         // If either of the dimension don't get populated, can't begin grid init.
-        if(mScreenSizeX == 0 || mScreenSizeY == 0) {
+        if(mViewSizeX == 0 || mViewSizeY == 0) {
             return;
         }
 
         // Actual adjusted grid dimensions
-        mGridSizeX = mScreenSizeX / xAdjust;
-        mGridSizeY = mScreenSizeY / yAdjust;
+        mGridSizeX = mViewSizeX / xAdjust;
+        mGridSizeY = mViewSizeY / yAdjust;
+
+        setOnTouchListener(mTouchHandler);
 
         // Create a grid of cells and a grid of colors for those cells
         mCellGrid = new int[mGridSizeX][mGridSizeY];
@@ -111,11 +161,11 @@ public class CellGridView extends View {
 
     private void DrawGrid() {
         Paint paint = new Paint();
-        Bitmap bg = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bg);
+        mCurrentBg = Bitmap.createBitmap(mViewSizeX, mViewSizeY, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(mCurrentBg);
 
         // Draw background
-        canvas.drawRect(0, 0, mScreenSizeX, mScreenSizeY, mDeadCellPaint);
+        canvas.drawRect(0, 0, mViewSizeX, mViewSizeY, mDeadCellPaint);
 
         // Use colors from grid, coloring each segment that has a "1" value in the CellGrid
         for(int i = 0; i < mGridSizeX; i++) {
@@ -128,22 +178,13 @@ public class CellGridView extends View {
         }
 
         setBackground(null);
-        setBackgroundDrawable(new BitmapDrawable(bg));
-
-        // Added by James 11/10 - This will draw the selected box
-        //Todo: Change the colors and maybe make it if it is only selected
-        if (true) {
-            paint.setColor(Color.rgb(100, 100, 100));
-            paint.setStrokeWidth(10);
-            paint.setStyle(Paint.Style.STROKE);
-            canvas.drawRect(x1, y1, x2, y2, paint);
-        }
+        setBackgroundDrawable(new BitmapDrawable(mCurrentBg));
     }
 
     public void RandomizeGrid() {
         Random rand = new Random();
-        for(int i = 0; i < mCellGrid.length; i++) {
-            for(int j = 0; j < mCellGrid.length; j++) {
+        for(int i = 0; i < mGridSizeX; i++) {
+            for(int j = 0; j < mGridSizeY; j++) {
                 int n = rand.nextInt(10)+ 1;
                 if(n == 1) {
                     mCellGrid[i][j] = 1;
@@ -158,8 +199,8 @@ public class CellGridView extends View {
     public void RandomizeColors() {
         Random rand = new Random();
 
-        for(int i = 0; i < mCellGrid.length; i++) {
-            for (int j = 0; j < mCellGrid.length; j++) {
+        for(int i = 0; i < mGridSizeX; i++) {
+            for (int j = 0; j < mGridSizeY; j++) {
                 int r = rand.nextInt(255);
                 int g = rand.nextInt(255);
                 int b = rand.nextInt(255);
