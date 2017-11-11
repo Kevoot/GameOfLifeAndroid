@@ -35,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
                 if(!cutSelected) {
                     cutSelected = true;
                     mCellGridView.pause();
+                    mCellGridView.deleteSelected();
+                    mCellGridView.unselect();
+
                     // TODO: Begin cut fragment
 
                 } else {
@@ -49,11 +52,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Pause simulation
+                // James - Thinking that if I understand this correct, cut should just make
+                //      the cells dead in the selected area. If this is correct, should we pause
+                //      the simulation when we cut or can we just keep it running?
+                // Kevin - I think we still want to copy the values out before destroying those cells.
+                //         database should automatically get updated with a copy of that selection
+                //         every time a copy or cut operation occurs.
                 if(!copySelected) {
                     copySelected = true;
                     mCellGridView.pause();
-                    // TODO: Begin copy fragment
-
+                    mCellGridView.deleteSelected();
                 } else {
                     copySelected = false;
                     mCellGridView.resume();
