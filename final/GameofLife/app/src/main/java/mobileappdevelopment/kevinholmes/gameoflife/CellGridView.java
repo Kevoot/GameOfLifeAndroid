@@ -37,6 +37,9 @@ public class CellGridView extends View {
     // Adjustment factors, must divide screen x and y size evenly
     public int xAdjust, yAdjust;
 
+    // Cell radius (half an adjustment)
+    public int mCellRadius;
+
     // Actual grid containing 0 or 1's indicating dead or alive cell
     private int [][] mCellGrid;
 
@@ -72,8 +75,9 @@ public class CellGridView extends View {
         // Initially set to 1 second between each step
         delay = 1000;
 
-        xAdjust = 10;
-        yAdjust = 10;
+        xAdjust = 15;
+        yAdjust = 15;
+        mCellRadius = xAdjust / 2;
 
         mAliveCellPaint = new Paint();
         mAliveCellPaint.setColor(Color.GREEN);
@@ -172,7 +176,8 @@ public class CellGridView extends View {
             for(int j = 0; j < mGridSizeY; j++) {
                 if(mCellGrid[i][j] == 1) {
                     paint.setColor(mColorGrid[i][j]);
-                    canvas.drawCircle(i * xAdjust, j * yAdjust, 5, paint);
+                    paint.setAntiAlias(true);
+                    canvas.drawCircle(i * xAdjust, j * yAdjust, mCellRadius, paint);
                 }
             }
         }
