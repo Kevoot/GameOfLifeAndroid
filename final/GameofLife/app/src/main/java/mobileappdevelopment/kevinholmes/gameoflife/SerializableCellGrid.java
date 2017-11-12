@@ -27,6 +27,8 @@ public class SerializableCellGrid implements Serializable {
     private int mNumAliveCells;
     // internal grid
     private boolean[][] mCellGrid;
+    // color grid
+    private int[][] mColorGrid;
 
     public SerializableCellGrid() {
         mCreationDateTime = DateFormat.getDateTimeInstance().format(new Date());
@@ -36,9 +38,10 @@ public class SerializableCellGrid implements Serializable {
         mCellGrid = new boolean[0][0];
     }
 
-    public SerializableCellGrid(@NonNull boolean[][] cellGrid) {
-        if(ValidateCellGrid(cellGrid)) {
+    public SerializableCellGrid(@NonNull boolean[][] cellGrid, @NonNull int[][] colorGrid) {
+        if(ValidateCellGrids(cellGrid, colorGrid)) {
             mCellGrid = cellGrid;
+            mColorGrid = colorGrid;
             mCreationDateTime = DateFormat.getDateTimeInstance().format(new Date());
             mWidth = cellGrid.length;
             mHeight = cellGrid[0].length;
@@ -52,7 +55,7 @@ public class SerializableCellGrid implements Serializable {
         } else throw new Error("Invalid Cell Grid passed to Serializable Cell Constructor");
     }
 
-    private boolean ValidateCellGrid(boolean[][] cellGrid) {
+    private boolean ValidateCellGrids(@NonNull boolean[][] cellGrid, @NonNull int[][] colorGrid) {
         return !(cellGrid.length == 0 || cellGrid[0].length == 0);
     }
 

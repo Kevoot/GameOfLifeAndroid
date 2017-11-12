@@ -1,5 +1,6 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -101,9 +102,9 @@ public class MainActivity extends AppCompatActivity {
                 // Pause simulation
                 if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
                     mCellGridView.pause();
-                    boolean[][] returnedCells = mCellGridView.copySelected();
+                    Pair<boolean[][], int[][]> returnedGrids = mCellGridView.copySelected();
                     // TODO: Copy contents to local DB, don't delete unless save works
-                    if(mDatabaseHelper.saveSelection(returnedCells)) {
+                    if(mDatabaseHelper.saveSelection(returnedGrids)) {
                         mCellGridView.deleteSelected();
                     } else throw new Error("Could not save selection to local database!");
 
@@ -132,8 +133,8 @@ public class MainActivity extends AppCompatActivity {
                     mCellGridView.pause();
                     // TODO: Copy the cell grid values into the local DB (Will have to scale to get
                     // TODO: correct values)
-                    boolean[][] returnedCells = mCellGridView.copySelected();
-                    if(!mDatabaseHelper.saveSelection(returnedCells)) {
+                    Pair<boolean[][], int[][]> returnedGrids = mCellGridView.copySelected();
+                    if(!mDatabaseHelper.saveSelection(returnedGrids)) {
                         throw new Error("Could not save selection to local database!");
                     }
                     mCellGridView.resume();
@@ -159,7 +160,8 @@ public class MainActivity extends AppCompatActivity {
                 if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
                     mCellGridView.pause();
                     // TODO: Save whole grid to DB
-                    if(!mDatabaseHelper.saveGrid(mCellGridView.mCellGrid)) {
+                    if(!mDatabaseHelper.saveGrid(
+                            new Pair<>(mCellGridView.mCellGrid, mCellGridView.mColorGrid))) {
                         throw new Error("Could not save grid to local database!");
                     }
                     mCellGridView.resume();

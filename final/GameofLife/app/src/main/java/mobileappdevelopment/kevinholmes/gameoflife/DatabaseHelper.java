@@ -3,6 +3,7 @@ package mobileappdevelopment.kevinholmes.gameoflife;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -46,9 +47,9 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     }
 
     // TODO: Implement stub functions
-    public boolean saveSelection(boolean[][] selection) {
+    public boolean saveSelection(Pair<boolean[][], int[][]> grids) {
         // Using this class ensures all values are in valid range
-        SerializableCellGrid grid = new SerializableCellGrid(selection);
+        SerializableCellGrid grid = new SerializableCellGrid(grids.first, grids.second);
         byte[] bytes = serializeCellGrid(grid);
 
         // TODO: (Alex): try saving to local db, if success return true, else false
@@ -58,9 +59,9 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         else return true;
     }
 
-    public boolean saveGrid(boolean[][] cellGrid) {
+    public boolean saveGrid(Pair<boolean[][], int[][]> grids) {
         // Using this class ensures all values are in valid range
-        SerializableCellGrid grid = new SerializableCellGrid(cellGrid);
+        SerializableCellGrid grid = new SerializableCellGrid(grids.first, grids.second);
         byte[] bytes = serializeCellGrid(grid);
 
         // TODO (Alex): try saving to local db, if success return true, else false

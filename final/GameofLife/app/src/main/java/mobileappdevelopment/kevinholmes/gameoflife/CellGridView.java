@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -51,7 +52,7 @@ public class CellGridView extends View {
     public boolean [][] mPaintGrid;
 
     // Color grid, must match exact dimensions of mCellGrid
-    private int[][] mColorGrid;
+    public int[][] mColorGrid;
 
     // Delay in milliseconds between each simulation step
     public int mDelay;
@@ -421,7 +422,7 @@ public class CellGridView extends View {
         }
     }
     //Added James - Good to be used for copy and cut functions
-    public boolean[][] copySelected() {
+    public Pair<boolean[][], int[][]> copySelected() {
 
         int x1c = x1/xAdjust;
         int x2c = x2/xAdjust;
@@ -442,14 +443,16 @@ public class CellGridView extends View {
         }
 
         boolean[][] selectedArray = new boolean[x2c-x1c][y2c-y1c];
+        int [][] selectedArrayColors = new int[x2c-x1c][y2c-y1c];
 
         // Copy the selected cells
         for(int i = 0; i < x2c-x1c; i++) {
             for(int j = 0; j < y2c-y1c; j++) {
                 selectedArray[i][j] = mCellGrid[x1c+i][y1c+j];
+                selectedArrayColors[i][j] = mColorGrid[x1c+i][y1c+j];
             }
         }
-
-        return selectedArray;
+        Pair<boolean[][], int[][]> grids = new Pair<>(selectedArray, selectedArrayColors);
+        return grids;
     }
 }
