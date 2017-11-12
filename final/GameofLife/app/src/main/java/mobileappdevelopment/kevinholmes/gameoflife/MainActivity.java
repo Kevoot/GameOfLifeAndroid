@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
                 // Pause simulation
                 if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
                     mCellGridView.pause();
+                    int[][] returnedCells = mCellGridView.copySelected();
                     // TODO: Copy contents to local DB
                     mCellGridView.deleteSelected();
                     mCellGridView.unselect();
@@ -60,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
                     mCellGridView.pause();
                     // TODO: Copy the cell grid values into the local DB (Will have to scale to get
                     // correct values)
+                    int[][] returnedCells = mCellGridView.copySelected();
+
                     mCellGridView.resume();
                 }
             }

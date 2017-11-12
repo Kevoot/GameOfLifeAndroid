@@ -49,7 +49,6 @@ public class CellGridView extends View {
     // Delay in milliseconds between each simulation step
     public int delay;
 
-    public boolean highlight;
     public int x1=0;
     public int x2=0;
     public int y1=0;
@@ -112,10 +111,10 @@ public class CellGridView extends View {
                         y2 = (int) (event.getY());
                     case MotionEvent.ACTION_UP:
                         while(x2 % xAdjust != 0) {
-                            x2 -= 1;
+                            x2 += 1;
                         }
                         while(y2 % yAdjust != 0) {
-                            y2 -= 1;
+                            y2 += 1;
                         }
                         v.performClick();
                         break;
@@ -128,7 +127,7 @@ public class CellGridView extends View {
                 paint.setColor(Color.rgb(100, 100, 100));
                 paint.setStrokeWidth(10);
                 paint.setStyle(Paint.Style.STROKE);
-                canvas.drawRect(x1, y1, x2, y2, paint);
+                canvas.drawRect(x1, y1, x2-xAdjust, y2-yAdjust, paint);
                 BitmapDrawable bd = new BitmapDrawable(tempBg);
                 setBackgroundDrawable(bd);
                 return true;
@@ -187,8 +186,9 @@ public class CellGridView extends View {
 
         // Added by James 11/10 - This will draw the selected box
         if (SelectedMin()) {
+            float width = xAdjust/2;
             paint.setColor(Color.rgb(255, 255, 255));
-            paint.setStrokeWidth(5);
+            paint.setStrokeWidth(width);
             paint.setStyle(Paint.Style.STROKE);
             //lock the grid to the dot grid
             x1 = x1 - (x1%xAdjust);
@@ -196,7 +196,7 @@ public class CellGridView extends View {
             y1 = y1 - (y1%yAdjust);
             y2 = y2 - (y2%yAdjust);
 
-            canvas.drawRect(x1-5, y1-5, x2-5, y2-5, paint);
+            canvas.drawRect(x1-width, y1-width, x2-width, y2-width, paint);
         }
     }
 
@@ -325,9 +325,37 @@ public class CellGridView extends View {
                 mCellGrid[i][j] = 0;
             }
         }
+    }
+    //Added James - Good to be used for copy and cut functions
+    public int[][] copySelected() {
 
-        /* Redraw the grid and unselect the box */
-        DrawGrid();
-        unselect();
+        x1 = x1/xAdjust;
+        x2 = x2/xAdjust;
+        y1 = y1/yAdjust;
+        y2 = y2/yAdjust;
+
+        //Swap if the box is dragged backwards
+        if (x1 > x2){
+            int temp = x1;
+            x1 = x2;
+            x2 = temp;
+        }
+
+        if (y1 > y2){
+            int temp = y1;
+            y1 = y2;
+            y2 = temp;
+        }
+
+        int[][] selectedArray = new int[x2-x1][y2-y1];
+
+        // Copy the selected cells
+        for(int i = 0; i < x2-x1; i++) {
+            for(int j = 0; j < y2-y1; j++) {
+                selectedArray[i][j] = mCellGrid[x1+i][y1+j];
+            }
+        }
+
+        return selectedArray;
     }
 }
