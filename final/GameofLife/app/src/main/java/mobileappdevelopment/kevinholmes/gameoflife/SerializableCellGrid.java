@@ -1,10 +1,15 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
+import android.graphics.Bitmap;
+import android.media.Image;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.graphics.BitmapCompat;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
@@ -29,6 +34,8 @@ public class SerializableCellGrid implements Serializable {
     private boolean[][] mCellGrid;
     // color grid
     private int[][] mColorGrid;
+    // Preview bitmap for fragments
+    Bitmap mPreviewBitmap;
 
     public SerializableCellGrid() {
         mCreationDateTime = DateFormat.getDateTimeInstance().format(new Date());
@@ -52,11 +59,19 @@ public class SerializableCellGrid implements Serializable {
                     if(anACellGrid) mNumAliveCells++;
                 }
             }
+            Bitmap bmp = Bitmap.createBitmap(colorGrid.length, colorGrid[0].length, Bitmap.Config.ARGB_8888);
+            for(int i = 0; i < colorGrid.length; i++) {
+                for(int j = 0; j < colorGrid[0].length; j++) {
+                    bmp.setPixel(i, j, colorGrid[i][j]);
+                }
+            }
+            mPreviewBitmap = bmp;
         } else throw new Error("Invalid Cell Grid passed to Serializable Cell Constructor");
     }
 
     private boolean ValidateCellGrids(@NonNull boolean[][] cellGrid, @NonNull int[][] colorGrid) {
-        return !(cellGrid.length == 0 || cellGrid[0].length == 0);
+        return !((cellGrid.length == 0 || cellGrid[0].length == 0) &&
+                (colorGrid.length == 0 || colorGrid[0].length == 0));
     }
 
     public String getCreationDateTime() {
@@ -94,4 +109,8 @@ public class SerializableCellGrid implements Serializable {
     public void setCellGrid(boolean[][] mCellGrid) {
         this.mCellGrid = mCellGrid;
     }
+
+    public int[][] getColorGrid() { return mColorGrid; }
+
+    public void setColorGrid(int[][] grid) { this.mColorGrid = grid; }
 }
