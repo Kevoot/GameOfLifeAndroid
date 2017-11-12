@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/save_mgmt"
+        android:title="Manage Saved Grids" />
+    <item android:id="@+id/change_speed"
+        android:title="Change Simulation Speed" />
+</menu>

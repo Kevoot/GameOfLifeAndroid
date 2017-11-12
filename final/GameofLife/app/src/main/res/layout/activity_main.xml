@@ -29,40 +29,60 @@
             android:weightSum="1">
 
             <ImageButton
+                android:id="@+id/newGridButton"
+                android:layout_width="45dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.10"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/new_canvas" />
+
+            <ImageButton
+                android:id="@+id/paintButton"
+                android:layout_width="45dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.10"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/paint" />
+
+            <ImageButton
+                android:id="@+id/randomizeButton"
+                android:layout_width="45dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.10"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/dice" />
+
+            <ImageButton
                 android:id="@+id/cutButton"
-                android:layout_width="35dp"
+                android:layout_width="45dp"
                 android:layout_height="match_parent"
                 android:scaleType="fitXY"
                 app:srcCompat="@drawable/cut"
                 android:layout_weight="0.10" />
             <ImageButton
                 android:id="@+id/copyButton"
-                android:layout_width="35dp"
+                android:layout_width="45dp"
                 android:layout_height="match_parent"
                 android:scaleType="fitXY"
                 app:srcCompat="@drawable/copy"
                 android:layout_weight="0.10" />
+
+            <ImageButton
+                android:id="@+id/pasteButton"
+                android:layout_width="45dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.10"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/paste" />
+
             <ImageButton
                 android:id="@+id/saveButton"
-                android:layout_width="35dp"
+                android:layout_width="45dp"
                 android:layout_height="match_parent"
                 android:scaleType="fitXY"
                 app:srcCompat="@drawable/save"
                 android:layout_weight="0.10" />
-            <ImageButton
-                android:id="@+id/dbButton"
-                android:layout_width="35dp"
-                android:layout_height="match_parent"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/db"
-                android:layout_weight="0.10" />
-            <ImageButton
-                android:id="@+id/randomizeButton"
-                android:layout_width="35dp"
-                android:layout_height="match_parent"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/dice"
-                android:layout_weight="0.10" />
+
         </LinearLayout>
 
     </LinearLayout>

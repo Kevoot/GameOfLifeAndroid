@@ -22,10 +22,14 @@ public class CellGridView extends View {
     // Set values for initial (non-randomized) alive cells
     private final Paint mAliveCellPaint;
 
+    // Flag to indicate whether or not the grid has been initialized and is now at a drawable state
+    public boolean initFlag;
+
     // Value for any void space (should use background setting instead of painting
     // as opposed to paint each individual cell with this)
     private final Paint mDeadCellPaint;
-    private final OnTouchListener mTouchHandler;
+    public final OnTouchListener mTouchSelectionHandler;
+    public final OnTouchListener mTouchPaintHandler;
 
     // Raw View dimensions
     public int mViewSizeX, mViewSizeY;
@@ -41,13 +45,16 @@ public class CellGridView extends View {
     public int mCellRadius;
 
     // Actual grid containing 0 or 1's indicating dead or alive cell
-    private int [][] mCellGrid;
+    public boolean [][] mCellGrid;
+
+    // Grid containing painting results
+    public boolean [][] mPaintGrid;
 
     // Color grid, must match exact dimensions of mCellGrid
     private int[][] mColorGrid;
 
     // Delay in milliseconds between each simulation step
-    public int delay;
+    public int mDelay;
 
     public int x1=0;
     public int x2=0;
@@ -63,7 +70,7 @@ public class CellGridView extends View {
             mHandler.removeCallbacks(this);
             step();
             DrawGrid();
-            mHandler.postDelayed(this, delay);
+            mHandler.postDelayed(this, mDelay);
         }
     };
     private Bitmap mCurrentBg;
@@ -72,7 +79,7 @@ public class CellGridView extends View {
         super(context, attrs);
 
         // Initially set to 1 second between each step
-        delay = 1000;
+        mDelay = 1000;
 
         xAdjust = 15;
         yAdjust = 15;
@@ -88,7 +95,7 @@ public class CellGridView extends View {
         mDeadCellPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         // Added by James 11/10 - Sets the x and y box for selected area
-        mTouchHandler = new View.OnTouchListener() {
+        mTouchSelectionHandler = new View.OnTouchListener() {
         // Modulus operations "clip" selection box to a grid location for easy translation later on
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -139,6 +146,73 @@ public class CellGridView extends View {
                 return true;
             }
         };
+
+        mTouchPaintHandler = new View.OnTouchListener() {
+            // Modulus operations "clip" selection box to a grid location for easy translation later on
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int x = 0;
+                int y = 0;
+                Bitmap tempBg = Bitmap.createBitmap(mCurrentBg);
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(mPaintGrid == null) {
+                            mPaintGrid = new boolean[mGridSizeX][mGridSizeY];
+                        }
+                        x = (int) (event.getX());
+                        while(x % xAdjust != 0) {
+                            x -= 1;
+                        }
+                        y = (int) (event.getY());
+                        if(y > mViewSizeY) y = mViewSizeY;
+                        while(y % yAdjust != 0) {
+                            y -= 1;
+                        }
+                        if (x < 0) x = 1;
+                        if (y < 0) y = 1;
+                        if (x > mViewSizeX) x = mViewSizeX;
+                        mPaintGrid[(x / xAdjust) - 1][(y / yAdjust) - 1] = true;
+                        pause();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        x = (int) (event.getX());
+                        while(x % xAdjust != 0) {
+                            x -= 1;
+                        }
+                        y = (int) (event.getY());
+                        if(y > mViewSizeY) y = mViewSizeY;
+                        while(y % yAdjust != 0) {
+                            y -= 1;
+                        }
+                        if (x < 0) {x = 0;}
+                        if (y < 0) {y = 0;}
+                        if (x > mViewSizeX) { x = mViewSizeX; }
+                        int adjustedX = x / xAdjust - 1;
+                        int adjustedY = y / yAdjust - 1;
+                        if(adjustedX < 0) adjustedX = 0;
+                        if(adjustedX > mGridSizeX) adjustedX = mGridSizeX - 1;
+                        if(adjustedY < 0) adjustedY = 0;
+                        if(adjustedY > mGridSizeY) adjustedY = mGridSizeY - 1;
+                        mPaintGrid[adjustedX][adjustedY] = true;
+                    case MotionEvent.ACTION_UP:
+                        v.performClick();
+                        break;
+                    default:
+                        break;
+                }
+                Paint paint = new Paint();
+                Canvas canvas = new Canvas(tempBg);
+                paint.setColor(Color.rgb(0, 255, 200));
+                paint.setStrokeWidth(20);
+                paint.setStyle(Paint.Style.STROKE);
+                canvas.drawPoint(x, y, paint);
+                BitmapDrawable bd = new BitmapDrawable(tempBg);
+                setBackgroundDrawable(bd);
+                mCurrentBg = bd.getBitmap();
+                return true;
+            }
+        };
     }
 
     public void initRandomGrid() {
@@ -154,10 +228,10 @@ public class CellGridView extends View {
         mGridSizeX = mViewSizeX / xAdjust;
         mGridSizeY = mViewSizeY / yAdjust;
 
-        setOnTouchListener(mTouchHandler);
+        setOnTouchListener(mTouchSelectionHandler);
 
         // Create a grid of cells and a grid of colors for those cells
-        mCellGrid = new int[mGridSizeX][mGridSizeY];
+        mCellGrid = new boolean[mGridSizeX][mGridSizeY];
         mColorGrid = new int[mGridSizeX][mGridSizeY];
 
         // Randomize at alive cells and colors
@@ -166,6 +240,34 @@ public class CellGridView extends View {
 
         // Begin simulation
         mHandler.postDelayed(mRunnable, 1000);
+        initFlag = true;
+    }
+
+    public void initBlankGrid() {
+        mViewSizeY = this.getHeight();
+        mViewSizeX = this.getWidth();
+
+        // If either of the dimension don't get populated, can't begin grid init.
+        if(mViewSizeX == 0 || mViewSizeY == 0) {
+            return;
+        }
+
+        // Actual adjusted grid dimensions
+        mGridSizeX = mViewSizeX / xAdjust;
+        mGridSizeY = mViewSizeY / yAdjust;
+
+        setOnTouchListener(mTouchSelectionHandler);
+
+        // Create a grid of cells and a grid of colors for those cells
+        mCellGrid = new boolean[mGridSizeX][mGridSizeY];
+        mColorGrid = new int[mGridSizeX][mGridSizeY];
+
+        // Randomize at alive cells and colors
+        RandomizeColors();
+
+        // Begin simulation
+        mHandler.postDelayed(mRunnable, 1000);
+        initFlag = true;
     }
 
     private void DrawGrid() {
@@ -179,7 +281,7 @@ public class CellGridView extends View {
         // Use colors from grid, coloring each segment that has a "1" value in the CellGrid
         for(int i = 0; i < mGridSizeX; i++) {
             for(int j = 0; j < mGridSizeY; j++) {
-                if(mCellGrid[i][j] == 1) {
+                if(mCellGrid[i][j]) {
                     paint.setColor(mColorGrid[i][j]);
                     paint.setAntiAlias(true);
                     canvas.drawCircle(i * xAdjust, j * yAdjust, mCellRadius, paint);
@@ -198,10 +300,10 @@ public class CellGridView extends View {
             for(int j = 0; j < mGridSizeY; j++) {
                 int n = rand.nextInt(10)+ 1;
                 if(n == 1) {
-                    mCellGrid[i][j] = 1;
+                    mCellGrid[i][j] = true;
                 }
                 else {
-                    mCellGrid[i][j] = 0;
+                    mCellGrid[i][j] = false;
                 }
             }
         }
@@ -222,7 +324,7 @@ public class CellGridView extends View {
 
     public void step() {
         // Do one step in simulation
-        int[][] future = new int[mGridSizeX][mGridSizeY];
+        boolean[][] future = new boolean[mGridSizeX][mGridSizeY];
 
         // Loop through every cell
         for (int l = 1; l < mGridSizeX - 1; l++)
@@ -233,25 +335,25 @@ public class CellGridView extends View {
                 int aliveNeighbours = 0;
                 for (int i = -1; i <= 1; i++)
                     for (int j = -1; j <= 1; j++)
-                        aliveNeighbours += mCellGrid[l + i][m + j];
+                        aliveNeighbours += mCellGrid[l + i][m + j] ? 1 : 0;
 
                 // The cell needs to be subtracted from
                 // its neighbours as it was counted before
-                aliveNeighbours -= mCellGrid[l][m];
+                aliveNeighbours -= mCellGrid[l][m] ? 1 : 0;
 
                 // Implementing the Rules of Life
 
                 // Cell is lonely and dies
-                if ((mCellGrid[l][m] == 1) && (aliveNeighbours < 2))
-                    future[l][m] = 0;
+                if ((mCellGrid[l][m] == true) && (aliveNeighbours < 2))
+                    future[l][m] = false;
 
                     // Cell dies due to over population
-                else if ((mCellGrid[l][m] == 1) && (aliveNeighbours > 3))
-                    future[l][m] = 0;
+                else if ((mCellGrid[l][m] == true) && (aliveNeighbours > 3))
+                    future[l][m] = false;
 
                     // A new cell is born
-                else if ((mCellGrid[l][m] == 0) && (aliveNeighbours == 3))
-                    future[l][m] = 1;
+                else if ((mCellGrid[l][m] == false) && (aliveNeighbours == 3))
+                    future[l][m] = true;
 
                     // Remains the same
                 else
@@ -267,7 +369,7 @@ public class CellGridView extends View {
     }
 
     public void resume() {
-        mHandler.postDelayed(mRunnable, delay);
+        mHandler.postDelayed(mRunnable, mDelay);
     }
 
     // James - needed so android studio wont yell at me for doing the touch listener
@@ -283,7 +385,7 @@ public class CellGridView extends View {
     }
 
     // James - un-select the box
-    public void unselect(){
+    public void deselect(){
         x1 = 0;
         x2 = 0;
         y1 = 0;
@@ -314,12 +416,12 @@ public class CellGridView extends View {
         // Make the cells in the selected box dead
         for(int i = x1c; i < x2c; i++) {
             for(int j = y1c; j < y2c; j++) {
-                mCellGrid[i][j] = 0;
+                mCellGrid[i][j] = false;
             }
         }
     }
     //Added James - Good to be used for copy and cut functions
-    public int[][] copySelected() {
+    public boolean[][] copySelected() {
 
         int x1c = x1/xAdjust;
         int x2c = x2/xAdjust;
@@ -339,7 +441,7 @@ public class CellGridView extends View {
             y2c = temp;
         }
 
-        int[][] selectedArray = new int[x2c-x1c][y2c-y1c];
+        boolean[][] selectedArray = new boolean[x2c-x1c][y2c-y1c];
 
         // Copy the selected cells
         for(int i = 0; i < x2c-x1c; i++) {

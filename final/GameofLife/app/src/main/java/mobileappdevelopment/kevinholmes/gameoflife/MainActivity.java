@@ -2,17 +2,27 @@ package mobileappdevelopment.kevinholmes.gameoflife;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 
 public class MainActivity extends AppCompatActivity {
     private CellGridView mCellGridView;
 
-    public static boolean cutSelected = false;
-    public static boolean copySelected = false;
-    public static boolean saveSelected = false;
-    public static boolean dbSelected = false;
+    private ImageButton mNewGridButton;
+    private ImageButton mPaintButton;
+    private ImageButton mRandomizeButton;
+    private ImageButton mCutButton;
+    private ImageButton mCopyButton;
+    private ImageButton mPasteButton;
+    private ImageButton mSaveAllButton;
 
+    public DatabaseHelper mDatabaseHelper;
+
+    // Indicates whether painting currently or not
+    public boolean paintingFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,29 +32,90 @@ public class MainActivity extends AppCompatActivity {
 
         mCellGridView = (CellGridView) findViewById(R.id.cellGridView);
 
-        /* TODO: Need to fix button interactions, so only one is selectedable at any given time
-        *  additionally, placing some highlighting on the button during selection and disabling
-        *  the rest would be nice
-        */
+        // TODO: (Alex): Make sure I'm setting the context correctly here
+        mDatabaseHelper = new DatabaseHelper(this);
 
-        final ImageButton cutButton = (ImageButton) findViewById(R.id.cutButton);
-        cutButton.setOnClickListener(new View.OnClickListener() {
+        // TODO: (Anyone): Add button disabling based on context
+        // I.E. if Paint is selected, all other buttons should be temporarily disabled
+        // until the paint function is completed. If a selection is occuring, paste/paint/newCanvas
+        // buttons should be disabled. Cut/copy should only be available when a selection is
+        // available
+
+        mNewGridButton = (ImageButton) findViewById(R.id.newGridButton);
+        mNewGridButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Pause simulation
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                if(mCellGridView.initFlag) {
+                    // TODO: (George): confirm dialog to discard current grid (check to make sure)
+                    // return true for confirm, false for cancel
+                    // if(false) return;
+                    // else let fall through
+                }
+                mCellGridView.initBlankGrid();
+            }
+        });
+
+        mPaintButton = (ImageButton) findViewById(R.id.paintButton);
+        mPaintButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!paintingFlag) {
+                    paintingFlag = true;
                     mCellGridView.pause();
-                    int[][] returnedCells = mCellGridView.copySelected();
-                    // TODO: Copy contents to local DB
-                    mCellGridView.deleteSelected();
-                    mCellGridView.unselect();
+                    // Check to make sure we have a canvas to draw on
+                    if(!mCellGridView.initFlag) mCellGridView.initBlankGrid();
+                    // Remove selection listener and switch to painting
+                    mCellGridView.setOnTouchListener(mCellGridView.mTouchPaintHandler);
+                } else {
+                    paintingFlag = false;
+                    // Add the painted cells to the current simulation
+                    for(int i=0; i<mCellGridView.mPaintGrid.length; i++) {
+                        for(int j = 0; j < mCellGridView.mPaintGrid.length; j++) {
+                            if(mCellGridView.mPaintGrid[i][j]) {
+                                mCellGridView.mCellGrid[i][j] = true;
+                            }
+                        }
+                    }
+                    // ALWAYS clear paint grid when painting is complete
+                    mCellGridView.mPaintGrid = null;
+                    // Reset listener to selection mode
+                    mCellGridView.setOnTouchListener(mCellGridView.mTouchSelectionHandler);
                     mCellGridView.resume();
                 }
             }
         });
 
-        final ImageButton copyButton = (ImageButton) findViewById(R.id.copyButton);
-        copyButton.setOnClickListener(new View.OnClickListener() {
+        mRandomizeButton = (ImageButton) findViewById(R.id.randomizeButton);
+        mRandomizeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCellGridView.pause();
+                mCellGridView.initRandomGrid();
+            }
+        });
+
+        mCutButton = (ImageButton) findViewById(R.id.cutButton);
+        mCutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Pause simulation
+                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                    mCellGridView.pause();
+                    boolean[][] returnedCells = mCellGridView.copySelected();
+                    // TODO: Copy contents to local DB, don't delete unless save works
+                    if(mDatabaseHelper.saveSelection(returnedCells)) {
+                        mCellGridView.deleteSelected();
+                    } else throw new Error("Could not save selection to local database!");
+
+                    // Either way, unselect and resume
+                    mCellGridView.deselect();
+                    mCellGridView.resume();
+                }
+            }
+        });
+
+        mCopyButton = (ImageButton) findViewById(R.id.copyButton);
+        mCopyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Pause simulation
@@ -60,55 +131,77 @@ public class MainActivity extends AppCompatActivity {
                 if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
                     mCellGridView.pause();
                     // TODO: Copy the cell grid values into the local DB (Will have to scale to get
-                    // correct values)
-                    int[][] returnedCells = mCellGridView.copySelected();
-
+                    // TODO: correct values)
+                    boolean[][] returnedCells = mCellGridView.copySelected();
+                    if(!mDatabaseHelper.saveSelection(returnedCells)) {
+                        throw new Error("Could not save selection to local database!");
+                    }
                     mCellGridView.resume();
                 }
             }
         });
 
-        final ImageButton saveButton = (ImageButton) findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        mPasteButton = (ImageButton) findViewById(R.id.pasteButton);
+        mPasteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Pause simulation
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
-                    mCellGridView.pause();
-                    // TODO: Save whole grid to DB
-                    mCellGridView.resume();
-                }
-            }
-        });
-
-        final ImageButton dbButton = (ImageButton) findViewById(R.id.dbButton);
-        dbButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Pause simulation
                 if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
                     mCellGridView.pause();
                     // TODO: Begin db fragment
-
                 }
             }
         });
 
-        final ImageButton randomizeButton = (ImageButton) findViewById(R.id.randomizeButton);
-        randomizeButton.setOnClickListener(new View.OnClickListener() {
+        mSaveAllButton = (ImageButton) findViewById(R.id.saveButton);
+        mSaveAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCellGridView.pause();
-                mCellGridView.initRandomGrid();
+                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                    mCellGridView.pause();
+                    // TODO: Save whole grid to DB
+                    if(!mDatabaseHelper.saveGrid(mCellGridView.mCellGrid)) {
+                        throw new Error("Could not save grid to local database!");
+                    }
+                    mCellGridView.resume();
+                }
             }
         });
-
     }
 
     @Override
     public void onResume() {
-        // Once application starts running normally, get CellGridView's dimensions and init
         super.onResume();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.save_mgmt:
+                mCellGridView.pause();
+                // TODO: (Alex & George): bring up save management fragment for deleting
+                // previously saved selections & full grids
+                // After completion, resume
+                mCellGridView.resume();
+                return true;
+            case R.id.change_speed:
+                mCellGridView.pause();
+                // TODO: (George): Create some UI element that allows for variable speed change
+                // Will have to experiment with max / min speed to see what feels best.
+                // Maybe add hardware polling to figure out what the phone can feasibly handle?
+                // variable to change from result is the mDelay in mCellGridView
+                mCellGridView.resume();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
 
