@@ -102,6 +102,8 @@ public class CellGridView extends View {
                         while(y1 % yAdjust != 0) {
                             y1 -= 1;
                         }
+                        if (x1 < 0) {x1 = 0;}
+                        if (y1 < 0) {y1 = 0;}
                         x2 = x1;
                         y2 = y1;
                         pause();
@@ -111,11 +113,13 @@ public class CellGridView extends View {
                         y2 = (int) (event.getY());
                     case MotionEvent.ACTION_UP:
                         while(x2 % xAdjust != 0) {
-                            x2 += 1;
+                            x2 -= 1;
                         }
                         while(y2 % yAdjust != 0) {
-                            y2 += 1;
+                            y2 -= 1;
                         }
+                        if (x2 < 0) {x2 = 0;}
+                        if (y2 < 0) {y2 = 0;}
                         v.performClick();
                         break;
                     default:
@@ -124,10 +128,12 @@ public class CellGridView extends View {
                 Paint paint = new Paint();
                 Bitmap tempBg = Bitmap.createBitmap(mCurrentBg);
                 Canvas canvas = new Canvas(tempBg);
-                paint.setColor(Color.rgb(100, 100, 100));
-                paint.setStrokeWidth(10);
-                paint.setStyle(Paint.Style.STROKE);
-                canvas.drawRect(x1, y1, x2-xAdjust, y2-yAdjust, paint);
+                if (SelectedMin()) {
+                    paint.setColor(Color.rgb(100, 100, 100));
+                    paint.setStrokeWidth(10);
+                    paint.setStyle(Paint.Style.STROKE);
+                    canvas.drawRect(x1, y1, x2 - xAdjust, y2 - yAdjust, paint);
+                }
                 BitmapDrawable bd = new BitmapDrawable(tempBg);
                 setBackgroundDrawable(bd);
                 return true;
@@ -184,20 +190,6 @@ public class CellGridView extends View {
         setBackground(null);
         setBackgroundDrawable(new BitmapDrawable(mCurrentBg));
 
-        // Added by James 11/10 - This will draw the selected box
-        if (SelectedMin()) {
-            float width = xAdjust/2;
-            paint.setColor(Color.rgb(255, 255, 255));
-            paint.setStrokeWidth(width);
-            paint.setStyle(Paint.Style.STROKE);
-            //lock the grid to the dot grid
-            x1 = x1 - (x1%xAdjust);
-            x2 = x2 - (x2%xAdjust);
-            y1 = y1 - (y1%yAdjust);
-            y2 = y2 - (y2%yAdjust);
-
-            canvas.drawRect(x1-width, y1-width, x2-width, y2-width, paint);
-        }
     }
 
     public void RandomizeGrid() {
@@ -301,27 +293,27 @@ public class CellGridView extends View {
     //James - Delete what is in the selected box
     public void deleteSelected(){
 
-        x1 = x1/xAdjust;
-        x2 = x2/xAdjust;
-        y1 = y1/yAdjust;
-        y2 = y2/yAdjust;
+        int x1c = x1/xAdjust;
+        int x2c = x2/xAdjust;
+        int y1c = y1/yAdjust;
+        int y2c = y2/yAdjust;
 
         //Swap if the box is dragged backwards
-        if (x1 > x2){
-            int temp = x1;
-            x1 = x2;
-            x2 = temp;
+        if (x1c > x2c){
+            int temp = x1c;
+            x1c = x2c;
+            x2c = temp;
         }
 
-        if (y1 > y2){
-            int temp = y1;
-            y1 = y2;
-            y2 = temp;
+        if (y1c > y2c){
+            int temp = y1c;
+            y1c = y2c;
+            y2c = temp;
         }
 
         // Make the cells in the selected box dead
-        for(int i = x1; i < x2; i++) {
-            for(int j = y1; j < y2; j++) {
+        for(int i = x1c; i < x2c; i++) {
+            for(int j = y1c; j < y2c; j++) {
                 mCellGrid[i][j] = 0;
             }
         }
@@ -329,30 +321,30 @@ public class CellGridView extends View {
     //Added James - Good to be used for copy and cut functions
     public int[][] copySelected() {
 
-        x1 = x1/xAdjust;
-        x2 = x2/xAdjust;
-        y1 = y1/yAdjust;
-        y2 = y2/yAdjust;
+        int x1c = x1/xAdjust;
+        int x2c = x2/xAdjust;
+        int y1c = y1/yAdjust;
+        int y2c = y2/yAdjust;
 
         //Swap if the box is dragged backwards
-        if (x1 > x2){
-            int temp = x1;
-            x1 = x2;
-            x2 = temp;
+        if (x1c > x2c){
+            int temp = x1c;
+            x1c = x2c;
+            x2c = temp;
         }
 
-        if (y1 > y2){
-            int temp = y1;
-            y1 = y2;
-            y2 = temp;
+        if (y1c > y2c){
+            int temp = y1c;
+            y1c = y2c;
+            y2c = temp;
         }
 
-        int[][] selectedArray = new int[x2-x1][y2-y1];
+        int[][] selectedArray = new int[x2c-x1c][y2c-y1c];
 
         // Copy the selected cells
-        for(int i = 0; i < x2-x1; i++) {
-            for(int j = 0; j < y2-y1; j++) {
-                selectedArray[i][j] = mCellGrid[x1+i][y1+j];
+        for(int i = 0; i < x2c-x1c; i++) {
+            for(int j = 0; j < y2c-y1c; j++) {
+                selectedArray[i][j] = mCellGrid[x1c+i][y1c+j];
             }
         }
 
