@@ -57,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mPaintButton = (ImageButton) findViewById(R.id.paintButton);
+        mPaintButton.setAlpha(.5f);
+        //mPaintButton.setClickable(false);
         mPaintButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

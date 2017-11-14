@@ -136,7 +136,7 @@ public class CellGridView extends View {
                 Paint paint = new Paint();
                 Bitmap tempBg = Bitmap.createBitmap(mCurrentBg);
                 Canvas canvas = new Canvas(tempBg);
-                if (SelectedMin()) {
+                if (selected()) {
                     paint.setColor(Color.rgb(100, 100, 100));
                     paint.setStrokeWidth(10);
                     paint.setStyle(Paint.Style.STROKE);
@@ -170,9 +170,10 @@ public class CellGridView extends View {
                         while(y % yAdjust != 0) {
                             y -= 1;
                         }
-                        if (x < 0) x = 1;
-                        if (y < 0) y = 1;
+                        if (x <= 0) x = 1;
+                        if (y <= 0) y = 1;
                         if (x > mViewSizeX) x = mViewSizeX;
+                        if (x > mViewSizeY) y = mViewSizeY;
                         mPaintGrid[(x / xAdjust) - 1][(y / yAdjust) - 1] = true;
                         pause();
                         break;
@@ -381,7 +382,7 @@ public class CellGridView extends View {
     }
 
     // James - allows the selected box to appear only if it is large enough
-    private boolean SelectedMin(){
+    public boolean selected(){
         return (Math.abs(x1-x2) > 20 || Math.abs(y1-y2) > 20);
     }
 
