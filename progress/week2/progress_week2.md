@@ -14,4 +14,7 @@ Whats been done:
   * Updated main activty ui with new buttons and icons, as well as fixed bottom-bar layout
 * Alex
 * James
+  * Added selection box to appear when touched
+  * Added functionality for cut and copy to return the selected bit array’s
+  * Added button disabling when painting 
 * George
