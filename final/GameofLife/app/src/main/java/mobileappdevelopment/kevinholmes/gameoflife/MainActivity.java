@@ -12,19 +12,19 @@ import android.widget.ImageButton;
 public class MainActivity extends AppCompatActivity {
     private CellGridView mCellGridView;
 
-    private ImageButton mNewGridButton;
-    private ImageButton mPaintButton;
-    private ImageButton mRandomizeButton;
-    private ImageButton mCutButton;
-    private ImageButton mCopyButton;
-    private ImageButton mPasteButton;
-    private ImageButton mSaveAllButton;
+    private static ImageButton mNewGridButton;
+    private static ImageButton mPaintButton;
+    private static ImageButton mRandomizeButton;
+    private static ImageButton mCutButton;
+    private static ImageButton mCopyButton;
+    private static ImageButton mPasteButton;
+    private static ImageButton mSaveAllButton;
 
     public DatabaseHelper mDatabaseHelper;
 
     // Indicates whether painting currently or not
-    public boolean paintingFlag;
-    public boolean selectingFlag;
+    public static boolean paintingFlag;
+    public static boolean selectingFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean SetState (boolean painting, boolean selected){
+    public static boolean SetState (boolean painting, boolean selected){
         float off = (float)0.5;
         float on = (float)1.0;
 
@@ -257,5 +257,14 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
+
+    public static boolean getSelectFlag () {
+        return selectingFlag;
+    }
+
+    public static boolean getPaintFlag () {
+        return selectingFlag;
+    }
+
 }
 

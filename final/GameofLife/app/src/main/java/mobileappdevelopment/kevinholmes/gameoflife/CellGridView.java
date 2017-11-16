@@ -129,6 +129,10 @@ public class CellGridView extends View {
                         if (x2 < 0) {x2 = 0;}
                         if (y2 < 0) {y2 = 0;}
 
+                        if (!selected()){
+                            resume();
+                        }
+
                         v.performClick();
                         break;
                     default:
@@ -142,6 +146,9 @@ public class CellGridView extends View {
                     paint.setStrokeWidth(10);
                     paint.setStyle(Paint.Style.STROKE);
                     canvas.drawRect(x1, y1, x2 - xAdjust, y2 - yAdjust, paint);
+                    MainActivity.SetState(false, true);
+                } else {
+                    MainActivity.SetState(false, false);
                 }
                 BitmapDrawable bd = new BitmapDrawable(tempBg);
                 setBackgroundDrawable(bd);
