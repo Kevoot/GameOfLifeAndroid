@@ -1,19 +1,8 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
 import android.graphics.Bitmap;
-import android.media.Image;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.graphics.BitmapCompat;
-import android.util.Log;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.Date;
@@ -35,7 +24,7 @@ public class SerializableCellGrid implements Serializable {
     // color grid
     private int[][] mColorGrid;
     // Preview bitmap for fragments
-    Bitmap mPreviewBitmap;
+    BitmapDataObject mPreviewBitmap;
 
     public SerializableCellGrid() {
         mCreationDateTime = DateFormat.getDateTimeInstance().format(new Date());
@@ -65,7 +54,7 @@ public class SerializableCellGrid implements Serializable {
                     bmp.setPixel(i, j, colorGrid[i][j]);
                 }
             }
-            mPreviewBitmap = bmp;
+            mPreviewBitmap = new BitmapDataObject(bmp);
         } else throw new Error("Invalid Cell Grid passed to Serializable Cell Constructor");
     }
 

@@ -12,19 +12,19 @@ import android.widget.ImageButton;
 public class MainActivity extends AppCompatActivity {
     private CellGridView mCellGridView;
 
-    private ImageButton mNewGridButton;
-    private ImageButton mPaintButton;
-    private ImageButton mRandomizeButton;
-    private ImageButton mCutButton;
-    private ImageButton mCopyButton;
-    private ImageButton mPasteButton;
-    private ImageButton mSaveAllButton;
+    private static ImageButton mNewGridButton;
+    private static ImageButton mPaintButton;
+    private static ImageButton mRandomizeButton;
+    private static ImageButton mCutButton;
+    private static ImageButton mCopyButton;
+    private static ImageButton mPasteButton;
+    private static ImageButton mSaveAllButton;
 
     public DatabaseHelper mDatabaseHelper;
 
     // Indicates whether painting currently or not
-    public boolean paintingFlag;
-    public boolean selectingFlag;
+    public static boolean paintingFlag;
+    public static boolean selectingFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,9 +155,25 @@ public class MainActivity extends AppCompatActivity {
         mPasteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 == 0) {
                     mCellGridView.pause();
                     // TODO: Begin db fragment
+
+                    // WILL BE DELETED, use for testing paste functions
+                    Pair<boolean[][], int[][]> temp = mDatabaseHelper.requestGrids("");
+                    for(int i =0; i < temp.first.length - 1; i++) {
+                        for(int j = 0; j < temp.first[0].length - 1; j++) {
+                            mCellGridView.mCellGrid[i][j] = temp.first[i][j];
+                        }
+                    }
+                    for(int i =0; i < temp.second.length - 1; i++) {
+                        for(int j = 0; j < temp.second[0].length - 1; j++) {
+                            mCellGridView.mColorGrid[i][j] = temp.second[i][j];
+                        }
+                    }
+                    // END DELETION SECTION
+
+                    mCellGridView.resume();
                 }
             }
         });
@@ -166,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         mSaveAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 == 0) {
                     mCellGridView.pause();
                     // TODO: Save whole grid to DB
                     if(!mDatabaseHelper.saveGrid(
@@ -218,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean SetState (boolean painting, boolean selected){
+    public static boolean SetState (boolean painting, boolean selected){
         float off = (float)0.5;
         float on = (float)1.0;
 
@@ -256,6 +272,14 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    public static boolean getSelectFlag () {
+        return selectingFlag;
+    }
+
+    public static boolean getPaintFlag () {
+        return selectingFlag;
     }
 }
 

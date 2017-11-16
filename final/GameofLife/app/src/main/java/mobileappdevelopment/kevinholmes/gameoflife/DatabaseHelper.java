@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
@@ -14,6 +16,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.util.List;
 
 import mobileappdevelopment.kevinholmes.gameoflife.SaveContract.SaveEntry;
 
@@ -25,6 +30,9 @@ import mobileappdevelopment.kevinholmes.gameoflife.SaveContract.SaveEntry;
     // to assign each saved segment an id.
 public class DatabaseHelper extends SQLiteOpenHelper{
 
+    // WILL BE DELETED. Use this to test paste functionality
+    public static byte[] tempPasteData;
+
     private static final String DATABASE_NAME = "gameoflife.db";
 
     private static final int DATABASE_VERSION = 1;
@@ -35,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db){
-        String SQL_CREATE_SAVE_TABLE = "CREATE TABLE" + SaveEntry.TABLE_NAME + " ("
+        String SQL_CREATE_SAVE_TABLE = "CREATE TABLE " + SaveEntry.TABLE_NAME + " ("
                 + SaveEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + SaveEntry.COLUMN_SAVE_NAME + " TEXT NOT NULL, "
                 + SaveEntry.COLUMN_SAVE_DATA + " BLOB NOT NULL); ";
@@ -63,6 +71,9 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         SerializableCellGrid grid = new SerializableCellGrid(grids.first, grids.second);
         byte[] bytes = serializeCellGrid(grid);
 
+        // WILL BE DELETED. Use this to test paste functionality
+        tempPasteData = bytes;
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(SaveEntry.COLUMN_SAVE_NAME, "DefaultName");
@@ -77,26 +88,30 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     }
 
     //Allows
-    public Pair<boolean[][], int[][]> requestGrid(String name){
+    public Pair<boolean[][], int[][]> requestGrids(String name){
         // Execute SQL to retrieve thing with proper name
         // the new byte array will be replaced by actual data once this is working
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        // Temporarily commented to test paste functionality
+        // SQLiteDatabase db = this.getReadableDatabase();
+        //String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME + " WHERE " +
+        //                       SaveEntry.COLUMN_SAVE_NAME + "=" + name;
+        // Cursor result = db.rawQuery(requestString, null);
+        // result.moveToFirst();
 
-        String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME + " WHERE " +
-                               SaveEntry.COLUMN_SAVE_NAME + "=" + name;
+        // WILL BE DELETED. Use this to test paste functionality
+        byte[] resultArray = tempPasteData;
 
-        Cursor result = db.rawQuery(requestString, null);
+        // This will be the actual one to use once DB is up and running
+        // byte[] resultArray = result.getBlob(2);
 
-        result.moveToFirst();
-        byte[] resultArray = result.getBlob(2);
 
         SerializableCellGrid serializableCellGrid = deserializeCellGrid(resultArray);
 
-        Pair<boolean[][], int[][]> grid = new Pair<>(serializableCellGrid.getCellGrid(),
-                                                     serializableCellGrid.getColorGrid());
+        assert serializableCellGrid != null;
 
-        return grid;
+        return new Pair<>(serializableCellGrid.getCellGrid(),
+                                                     serializableCellGrid.getColorGrid());
     }
 
     // Allows us the ability to convert the entire grid and stats to a bytestream for saving to sql
@@ -138,4 +153,5 @@ public class DatabaseHelper extends SQLiteOpenHelper{
             return null;
         }
     }
+
 }
