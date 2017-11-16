@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Indicates whether painting currently or not
     public boolean paintingFlag;
+    public boolean selectingFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,35 +43,39 @@ public class MainActivity extends AppCompatActivity {
         // buttons should be disabled. Cut/copy should only be available when a selection is
         // available
 
+
+
         mNewGridButton = (ImageButton) findViewById(R.id.newGridButton);
         mNewGridButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mCellGridView.initFlag) {
-                    // TODO: (George): confirm dialog to discard current grid (check to make sure)
-                    // return true for confirm, false for cancel
-                    // if(false) return;
-                    // else let fall through
+                if (!paintingFlag && !selectingFlag) {
+                    if (mCellGridView.initFlag) {
+                        // TODO: (George): confirm dialog to discard current grid (check to make sure)
+                        // return true for confirm, false for cancel
+                        // if(false) return;
+                        // else let fall through
+                    }
+                    mCellGridView.initBlankGrid();
                 }
-                mCellGridView.initBlankGrid();
             }
         });
 
         mPaintButton = (ImageButton) findViewById(R.id.paintButton);
-        mPaintButton.setAlpha(.5f);
+
         //mPaintButton.setClickable(false);
         mPaintButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!paintingFlag) {
-                    paintingFlag = true;
+                if(!paintingFlag && !selectingFlag) {
+                    SetState(true, false);
                     mCellGridView.pause();
                     // Check to make sure we have a canvas to draw on
                     if(!mCellGridView.initFlag) mCellGridView.initBlankGrid();
                     // Remove selection listener and switch to painting
                     mCellGridView.setOnTouchListener(mCellGridView.mTouchPaintHandler);
-                } else {
-                    paintingFlag = false;
+                } else if (paintingFlag) {
+                    SetState(false, false);
                     // Add the painted cells to the current simulation
                     for(int i=0; i<mCellGridView.mPaintGrid.length; i++) {
                         for(int j = 0; j < mCellGridView.mPaintGrid.length; j++) {
@@ -92,8 +97,10 @@ public class MainActivity extends AppCompatActivity {
         mRandomizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCellGridView.pause();
-                mCellGridView.initRandomGrid();
+                if (!paintingFlag && !selectingFlag) {
+                    mCellGridView.pause();
+                    mCellGridView.initRandomGrid();
+                }
             }
         });
 
@@ -170,6 +177,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // create initial state of not selecting or painting
+        SetState(false, false);
     }
 
     @Override
@@ -206,6 +216,46 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private boolean SetState (boolean painting, boolean selected){
+        float off = (float)0.5;
+        float on = (float)1.0;
+
+        paintingFlag = painting;
+        selectingFlag = selected;
+
+        if (painting && !selected){
+            mNewGridButton.setAlpha(off);
+            mPaintButton.setAlpha(on);
+            mRandomizeButton.setAlpha(off);
+            mCutButton.setAlpha(off);
+            mCopyButton.setAlpha(off);
+            mPasteButton.setAlpha(off);
+            mSaveAllButton.setAlpha(off);
+            return true;
+        }
+        if (!painting && selected){
+            mNewGridButton.setAlpha(off);
+            mPaintButton.setAlpha(off);
+            mRandomizeButton.setAlpha(off);
+            mCutButton.setAlpha(on);
+            mCopyButton.setAlpha(on);
+            mPasteButton.setAlpha(off);
+            mSaveAllButton.setAlpha(off);
+            return true;
+        }
+        if (!painting && !selected){
+            mNewGridButton.setAlpha(on);
+            mPaintButton.setAlpha(on);
+            mRandomizeButton.setAlpha(on);
+            mCutButton.setAlpha(off);
+            mCopyButton.setAlpha(off);
+            mPasteButton.setAlpha(on);
+            mSaveAllButton.setAlpha(on);
+            return true;
+        }
+        return false;
     }
 }
 

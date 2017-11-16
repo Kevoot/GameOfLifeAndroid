@@ -128,6 +128,7 @@ public class CellGridView extends View {
                         }
                         if (x2 < 0) {x2 = 0;}
                         if (y2 < 0) {y2 = 0;}
+
                         v.performClick();
                         break;
                     default:
@@ -173,7 +174,7 @@ public class CellGridView extends View {
                         if (x <= 0) x = 1;
                         if (y <= 0) y = 1;
                         if (x > mViewSizeX) x = mViewSizeX;
-                        if (x > mViewSizeY) y = mViewSizeY;
+                        if (y > mViewSizeY) y = mViewSizeY;
                         mPaintGrid[(x / xAdjust) - 1][(y / yAdjust) - 1] = true;
                         pause();
                         break;
