@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Game of Life</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Load">Load</string>
 </resources>

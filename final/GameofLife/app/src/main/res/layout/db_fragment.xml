@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <ListView
+
+        android:layout_width="match_parent"
+        android:layout_height="470dp">
+
+
+
+    </ListView>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:text="@string/Load"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.10"
+            android:scaleType="fitXY" />
+
+        <Button
+            android:text="@string/Cancel"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.10"
+            android:scaleType="fitXY" />
+    </LinearLayout>
 
 </LinearLayout>
