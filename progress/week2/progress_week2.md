@@ -18,3 +18,6 @@ Whats been done:
   * Added functionality for cut and copy to return the selected bit array’s
   * Added button disabling when painting 
 * George
+	* Added a fragment that can access and display the contents of a database
+  * Added a ListView object that can display the information of the elements of a database
+    to allow the users to select from the database.
