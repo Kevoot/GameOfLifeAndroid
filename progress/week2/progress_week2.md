@@ -13,6 +13,8 @@ Whats been done:
 		byte arrays for easier sql storage
   * Updated main activty ui with new buttons and icons, as well as fixed bottom-bar layout
 * Alex
+  * Implemented DB save functionality
+  * Implemented DB request functionality
 * James
   * Added selection box to appear when touched
   * Added functionality for cut and copy to return the selected bit array’s
