@@ -424,6 +424,12 @@ public class CellGridView extends View {
             y2c = temp;
         }
 
+        //Make sure the bounds are in the box
+        if (x1c < 0){x1c = 0;}
+        if (y1c < 0){y1c = 0;}
+        if (x2c > mGridSizeX-1){x2c = mGridSizeX-1;}
+        if (y2c > mGridSizeY-1){y2c = mGridSizeY-1;}
+
         // Make the cells in the selected box dead
         for(int i = x1c; i < x2c; i++) {
             for(int j = y1c; j < y2c; j++) {
@@ -451,6 +457,12 @@ public class CellGridView extends View {
             y1c = y2c;
             y2c = temp;
         }
+
+        //Make sure the bounds are in the box
+        if (x1c < 0){x1c = 0;}
+        if (y1c < 0){y1c = 0;}
+        if (x2c > mGridSizeX-1){x2c = mGridSizeX-1;}
+        if (y2c > mGridSizeY-1){y2c = mGridSizeY-1;}
 
         boolean[][] selectedArray = new boolean[x2c-x1c][y2c-y1c];
         int [][] selectedArrayColors = new int[x2c-x1c][y2c-y1c];

@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Pause simulation
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                if(selectingFlag) {
                     mCellGridView.pause();
                     Pair<boolean[][], int[][]> returnedGrids = mCellGridView.copySelected();
                     // TODO: Copy contents to local DB, don't delete unless save works
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 //         so no deletion
 
                 // Getting rid of those previous variables, just make sure there's a selection first
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                if(selectingFlag) {
                     mCellGridView.pause();
                     // TODO: Copy the cell grid values into the local DB (Will have to scale to get
                     // TODO: correct values)
@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         mPasteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 == 0) {
+                if(selectingFlag) {
                     mCellGridView.pause();
                     // TODO: Begin db fragment
 
@@ -165,12 +165,16 @@ public class MainActivity extends AppCompatActivity {
                     Pair<boolean[][], int[][]> temp = mDatabaseHelper.requestGrids("");
                     for(int i =0; i < temp.first.length - 1; i++) {
                         for(int j = 0; j < temp.first[0].length - 1; j++) {
-                            mCellGridView.mCellGrid[i][j] = temp.first[i][j];
+                            if (i+mCellGridView.x1/mCellGridView.xAdjust < mCellGridView.mGridSizeX && j+mCellGridView.y1/mCellGridView.yAdjust < mCellGridView.mGridSizeY) {
+                                mCellGridView.mCellGrid[i+mCellGridView.x1/mCellGridView.xAdjust][j+mCellGridView.y1/mCellGridView.yAdjust] = temp.first[i][j];
+                            }
                         }
                     }
                     for(int i =0; i < temp.second.length - 1; i++) {
                         for(int j = 0; j < temp.second[0].length - 1; j++) {
-                            mCellGridView.mColorGrid[i][j] = temp.second[i][j];
+                            if (i+mCellGridView.x1/mCellGridView.xAdjust < mCellGridView.mGridSizeX && j+mCellGridView.y1/mCellGridView.yAdjust < mCellGridView.mGridSizeY) {
+                                mCellGridView.mColorGrid[i+mCellGridView.x1/mCellGridView.xAdjust][j+mCellGridView.y1/mCellGridView.yAdjust] = temp.second[i][j];
+                            }
                         }
                     }
                     // END DELETION SECTION
@@ -261,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
             mRandomizeButton.setAlpha(off);
             mCutButton.setAlpha(on);
             mCopyButton.setAlpha(on);
-            mPasteButton.setAlpha(off);
+            mPasteButton.setAlpha(on);
             mSaveAllButton.setAlpha(off);
             return true;
         }
