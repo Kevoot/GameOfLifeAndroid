@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 import mobileappdevelopment.kevinholmes.gameoflife.SaveContract.SaveEntry;
 
@@ -50,14 +51,11 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     // TODO: Implement stub functions
     public boolean saveSelection(Pair<boolean[][], int[][]> grids) {
-        boolean success = saveGrid(grids);
-        // TODO: (Alex): try saving to local db, if success return true, else false
-        if(success) {
-            return true;
-        }
-        else return false;
+        return saveGrid(grids);
     }
 
+    //Save function for saving an amount of the grid
+    //TODO: needs testing
     public boolean saveGrid(Pair<boolean[][], int[][]> grids) {
         // Using this class ensures all values are in valid range
         SerializableCellGrid grid = new SerializableCellGrid(grids.first, grids.second);
@@ -76,7 +74,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         else return true;
     }
 
-    //Allows
+    //Allows you to request a save from the DB using its name
+    //TODO: needs testing
     public Pair<boolean[][], int[][]> requestGrid(String name){
         // Execute SQL to retrieve thing with proper name
         // the new byte array will be replaced by actual data once this is working
@@ -87,16 +86,36 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                                SaveEntry.COLUMN_SAVE_NAME + "=" + name;
 
         Cursor result = db.rawQuery(requestString, null);
+        Pair<boolean[][], int[][]> grid = null;
 
-        result.moveToFirst();
-        byte[] resultArray = result.getBlob(2);
+        //Make sure this is SOME data
+        //TODO: Need to add error checking here
+        if(result.moveToFirst()) {
+            byte[] resultArray = result.getBlob(2);
 
-        SerializableCellGrid serializableCellGrid = deserializeCellGrid(resultArray);
+            SerializableCellGrid serializableCellGrid = deserializeCellGrid(resultArray);
 
-        Pair<boolean[][], int[][]> grid = new Pair<>(serializableCellGrid.getCellGrid(),
-                                                     serializableCellGrid.getColorGrid());
-
+            grid = new Pair<>(serializableCellGrid.getCellGrid(),
+                    serializableCellGrid.getColorGrid());
+        }
         return grid;
+    }
+
+    //Returns the list of all the names of the saves.
+    public ArrayList<String> getSaveNames(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME;
+
+        Cursor result = db.rawQuery(requestString, null);
+        ArrayList<String> names = new ArrayList<>();
+
+        if(result.moveToFirst()){
+            do{
+                names.add(result.getString(1));
+            }while(result.moveToNext());
+        }
+
+        return names;
     }
 
     // Allows us the ability to convert the entire grid and stats to a bytestream for saving to sql
