@@ -1,36 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:xmls="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="48dp">
 
     <ListView
-
-        android:layout_width="match_parent"
-        android:layout_height="470dp">
-
-
+        android:id="@+id/list"
+        android:layout_height="300dp"
+        android:layout_width="280dp">
 
     </ListView>
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:gravity="center|bottom">
 
         <Button
-            android:text="@string/Load"
-            android:layout_width="45dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.10"
-            android:scaleType="fitXY" />
-
-        <Button
+            android:id="@+id/Cancel"
             android:text="@string/Cancel"
-            android:layout_width="45dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.10"
-            android:scaleType="fitXY" />
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|bottom" />
     </LinearLayout>
 
 </LinearLayout>

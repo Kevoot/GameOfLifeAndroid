@@ -1,32 +1,38 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
-//import mobileappdevelopment.kevinholmes.gameoflife.DBFragmentListViewLoader;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 
 /**
  * Created by George Le on 11/14/2017.
  */
 
-public class DatabaseFragment extends Fragment {
+public class DatabaseFragment extends ListFragment implements AdapterView.OnItemClickListener {
 
-    // A listview object that accesses the elements of the database and displays the element's
-    // information for the user to view. It also allows for the users to select an element and
-    // load it in the MainActivity
-    //private DBFragmentListViewLoader dbloader;
-
-    // two buttons on selecting from the database
+    // button cancelling selecting from the database
     private Button mButtonCancel;
-    private Button mButtonLoad;
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.db_fragment, container, false);
+        return view;
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
-        return inflater.inflate(R.layout.db_fragment, container, false);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        ArrayAdapter<byte[]> adapter = ArrayAdapter.createFromResource(getActivity(), );
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+
     }
 }
