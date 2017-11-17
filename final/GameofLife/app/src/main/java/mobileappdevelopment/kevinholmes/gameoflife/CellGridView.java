@@ -294,7 +294,6 @@ public class CellGridView extends View {
 
         setBackground(null);
         setBackgroundDrawable(new BitmapDrawable(mCurrentBg));
-
     }
 
     public void RandomizeGrid() {

@@ -13,11 +13,19 @@ Whats been done:
 		byte arrays for easier sql storage
   * Updated main activty ui with new buttons and icons, as well as fixed bottom-bar layout
 * Alex
+  * Implemented DB save functionality
+  * Implemented DB request functionality
 * James
   * Added selection box to appear when touched
   * Added functionality for cut and copy to return the selected bit array’s
   * Added button disabling when painting 
 * George
+<<<<<<< HEAD
   * Added a fragment that can access and display the contents of a database
   * Added a ListView object that can display the information of the elements of a database
     to allow the users to select from the database.
+=======
+	* Added a fragment that can access and display the contents of a database
+  * Added a ListView object that can display the information of the elements of a database
+    to allow the users to select from the database.
+>>>>>>> 59297d33de2c8adb4d0067e6197a479ff14cc3e8

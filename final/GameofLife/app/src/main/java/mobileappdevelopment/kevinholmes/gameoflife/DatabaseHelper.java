@@ -1,6 +1,8 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v4.util.Pair;
@@ -36,7 +38,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         String SQL_CREATE_SAVE_TABLE = "CREATE TABLE" + SaveEntry.TABLE_NAME + " ("
                 + SaveEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + SaveEntry.COLUMN_SAVE_NAME + " TEXT NOT NULL, "
-                + SaveEntry.COLUMN_SAVE_DATA + " TEXT NOT NULL);";
+                + SaveEntry.COLUMN_SAVE_DATA + " BLOB NOT NULL); ";
 
         db.execSQL(SQL_CREATE_SAVE_TABLE);
     }
@@ -48,15 +50,12 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     // TODO: Implement stub functions
     public boolean saveSelection(Pair<boolean[][], int[][]> grids) {
-        // Using this class ensures all values are in valid range
-        SerializableCellGrid grid = new SerializableCellGrid(grids.first, grids.second);
-        byte[] bytes = serializeCellGrid(grid);
-
+        boolean success = saveGrid(grids);
         // TODO: (Alex): try saving to local db, if success return true, else false
-        if(true) {
+        if(success) {
             return true;
         }
-        else return true;
+        else return false;
     }
 
     public boolean saveGrid(Pair<boolean[][], int[][]> grids) {
@@ -64,11 +63,40 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         SerializableCellGrid grid = new SerializableCellGrid(grids.first, grids.second);
         byte[] bytes = serializeCellGrid(grid);
 
-        // TODO (Alex): try saving to local db, if success return true, else false
-        if(true) {
-            return true;
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(SaveEntry.COLUMN_SAVE_NAME, "DefaultName");
+        values.put(SaveEntry.COLUMN_SAVE_DATA, bytes);
+
+        long rowid = db.insert(SaveEntry.TABLE_NAME, null, values);
+
+        if(rowid == -1) {
+            return false;
         }
         else return true;
+    }
+
+    //Allows
+    public Pair<boolean[][], int[][]> requestGrid(String name){
+        // Execute SQL to retrieve thing with proper name
+        // the new byte array will be replaced by actual data once this is working
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME + " WHERE " +
+                               SaveEntry.COLUMN_SAVE_NAME + "=" + name;
+
+        Cursor result = db.rawQuery(requestString, null);
+
+        result.moveToFirst();
+        byte[] resultArray = result.getBlob(2);
+
+        SerializableCellGrid serializableCellGrid = deserializeCellGrid(resultArray);
+
+        Pair<boolean[][], int[][]> grid = new Pair<>(serializableCellGrid.getCellGrid(),
+                                                     serializableCellGrid.getColorGrid());
+
+        return grid;
     }
 
     // Allows us the ability to convert the entire grid and stats to a bytestream for saving to sql
