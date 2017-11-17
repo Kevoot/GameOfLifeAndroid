@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
                     // Either way, unselect and resume
                     mCellGridView.deselect();
                     mCellGridView.resume();
+                    SetState(false, false);
                 }
             }
         });
@@ -147,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                         throw new Error("Could not save selection to local database!");
                     }
                     mCellGridView.resume();
+                    SetState(false, false);
                 }
             }
         });
@@ -174,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
                     // END DELETION SECTION
 
                     mCellGridView.resume();
+                    SetState(false, false);
                 }
             }
         });
@@ -190,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
                         throw new Error("Could not save grid to local database!");
                     }
                     mCellGridView.resume();
+                    SetState(false, false);
                 }
             }
         });

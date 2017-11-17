@@ -102,6 +102,7 @@ public class CellGridView extends View {
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        pause();
                         x1 = (int) (event.getX());
                         while(x1 % xAdjust != 0) {
                             x1 -= 1;
@@ -114,11 +115,12 @@ public class CellGridView extends View {
                         if (y1 < 0) {y1 = 0;}
                         x2 = x1;
                         y2 = y1;
-                        pause();
+
                         break;
                     case MotionEvent.ACTION_MOVE:
                         x2 = (int) (event.getX());
                         y2 = (int) (event.getY());
+                        break;
                     case MotionEvent.ACTION_UP:
                         while(x2 % xAdjust != 0) {
                             x2 -= 1;
