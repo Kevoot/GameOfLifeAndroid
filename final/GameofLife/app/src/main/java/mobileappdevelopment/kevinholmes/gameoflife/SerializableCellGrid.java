@@ -1,11 +1,19 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.Date;
+
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.mCellRadius;
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.xAdjust;
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.yAdjust;
 
 /**
  * Created by Kevin on 11/12/2017.
@@ -48,10 +56,17 @@ public class SerializableCellGrid implements Serializable {
                     if(anACellGrid) mNumAliveCells++;
                 }
             }
-            Bitmap bmp = Bitmap.createBitmap(colorGrid.length, colorGrid[0].length, Bitmap.Config.ARGB_8888);
+            Bitmap bmp = Bitmap.createBitmap((colorGrid.length * xAdjust) + xAdjust,
+                    (colorGrid[0].length * yAdjust) + xAdjust, Bitmap.Config.ARGB_8888);
+            Canvas tempCanvas = new Canvas(bmp);
+            Paint paint = new Paint();
+            paint.setColor(Color.GRAY);
+            paint.setAntiAlias(true);
+            tempCanvas.drawRect(0, 0, bmp.getWidth(), bmp.getHeight(), paint);
             for(int i = 0; i < colorGrid.length; i++) {
                 for(int j = 0; j < colorGrid[0].length; j++) {
-                    bmp.setPixel(i, j, colorGrid[i][j]);
+                        paint.setColor(mCellGrid[i][j] ? mColorGrid[i][j] : Color.BLACK);
+                        tempCanvas.drawCircle((i * xAdjust) + xAdjust, (j * yAdjust) + yAdjust, mCellRadius, paint);
                 }
             }
             mPreviewBitmap = new BitmapDataObject(bmp);

@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 public class BitmapDataObject implements Serializable {
 
-    private Bitmap currentImage;
+    public Bitmap currentImage;
 
     public BitmapDataObject(Bitmap bitmap) {
         currentImage = bitmap;

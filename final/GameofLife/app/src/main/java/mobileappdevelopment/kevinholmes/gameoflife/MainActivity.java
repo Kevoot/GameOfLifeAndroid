@@ -1,5 +1,6 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
+import android.graphics.Bitmap;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,6 +9,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.xAdjust;
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.yAdjust;
 
 public class MainActivity extends AppCompatActivity {
     private CellGridView mCellGridView;
@@ -25,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     // Indicates whether painting currently or not
     public static boolean paintingFlag;
     public static boolean selectingFlag;
+    public static boolean pastingFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO: (Alex): Make sure I'm setting the context correctly here
         mDatabaseHelper = new DatabaseHelper(this);
+        paintingFlag = false;
+        selectingFlag = false;
+        pastingFlag = false;
 
         // TODO: (Anyone): Add button disabling based on context
         // I.E. if Paint is selected, all other buttons should be temporarily disabled
@@ -120,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // Either way, un-select and resume
                     mCellGridView.deselect();
+                    mCellGridView.DrawGrid();
                     mCellGridView.resume();
                     SetState(false, false);
                 }
@@ -148,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     if(!mDatabaseHelper.saveSelection(returnedGrids)) {
                         throw new Error("Could not save selection to local database!");
                     }
+                    mCellGridView.DrawGrid();
                     mCellGridView.resume();
                     SetState(false, false);
                 }
@@ -158,44 +168,31 @@ public class MainActivity extends AppCompatActivity {
         mPasteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(selectingFlag) {
+                // Temporary for testing paste functionality
+                SerializableCellGrid pasteGrid = mDatabaseHelper.requestGrids("");
+                //
+
+                if(!selectingFlag && !pastingFlag) {
+                    pastingFlag = true;
                     mCellGridView.pause();
                     // TODO: Begin db fragment
 
-                    int tx;
-                    int ty;
-                    if (mCellGridView.x1 < mCellGridView.x2) {
-                        tx = mCellGridView.x1 / mCellGridView.xAdjust;
-                    } else {
-                        tx = mCellGridView.x2 / mCellGridView.yAdjust;
-                    }
-                    if (mCellGridView.y1 < mCellGridView.y2) {
-                        ty = mCellGridView.y1 / mCellGridView.xAdjust;
-                    } else {
-                        ty = mCellGridView.y2 / mCellGridView.yAdjust;
-                    }
+                    // WILL BE DELETED, use for testing paste functions.
+                    mCellGridView.setPreviewBitmap((pasteGrid.mPreviewBitmap.currentImage));
+                    //
 
-                    // WILL BE DELETED, use for testing paste functions
-                    Pair<boolean[][], int[][]> temp = mDatabaseHelper.requestGrids("");
-                    for(int i =0; i < temp.first.length - 1; i++) {
-                        for(int j = 0; j < temp.first[0].length - 1; j++) {
-                            if (i+tx < mCellGridView.mGridSizeX && j+ty < mCellGridView.mGridSizeY) {
-                                mCellGridView.mCellGrid[i+tx][j+ty] = temp.first[i][j];
-                            }
-                        }
-                    }
-                    for(int i =0; i < temp.second.length - 1; i++) {
-                        for(int j = 0; j < temp.second[0].length - 1; j++) {
-                            if (i+tx < mCellGridView.mGridSizeX && j+ty < mCellGridView.mGridSizeY) {
-                                mCellGridView.mColorGrid[i+tx][j+ty] = temp.second[i][j];
-                            }
-                        }
-                    }
-                    // END DELETION SECTION
-
-                    mCellGridView.resume();
+                    mCellGridView.setOnTouchListener(mCellGridView.mTouchPasteHandler);
                     SetState(false, false);
+                } else if (!selectingFlag && pastingFlag) {
+                    mCellGridView.transferCellsFromPaste(pasteGrid.getCellGrid(),
+                            pasteGrid.getColorGrid(), ((mCellGridView.x2 / xAdjust) - 1),
+                            ((mCellGridView.y2 / yAdjust) - 1));
+                    mCellGridView.DrawGrid();
+                    mCellGridView.resume();
+                    pastingFlag = false;
+                    mCellGridView.setOnTouchListener(mCellGridView.mTouchSelectionHandler);
                 }
+
             }
         });
 

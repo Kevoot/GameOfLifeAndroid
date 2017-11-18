@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.nio.Buffer;
 import java.util.Random;
 
 /**
@@ -29,8 +31,13 @@ public class CellGridView extends View {
     // Value for any void space (should use background setting instead of painting
     // as opposed to paint each individual cell with this)
     private final Paint mDeadCellPaint;
+
+    // Only one of these should be loaded at any given time.
+    // Attach any given one of them to the mHandler
     public final OnTouchListener mTouchSelectionHandler;
     public final OnTouchListener mTouchPaintHandler;
+    public final OnTouchListener mTouchPasteHandler;
+
 
     // Raw View dimensions
     public int mViewSizeX, mViewSizeY;
@@ -40,10 +47,10 @@ public class CellGridView extends View {
     public int mGridSizeX, mGridSizeY;
 
     // Adjustment factors, must divide screen x and y size evenly
-    public int xAdjust, yAdjust;
+    public static int xAdjust, yAdjust;
 
     // Cell radius (half an adjustment)
-    public int mCellRadius;
+    public static int mCellRadius;
 
     // Actual grid containing 0 or 1's indicating dead or alive cell
     public boolean [][] mCellGrid;
@@ -74,7 +81,9 @@ public class CellGridView extends View {
             mHandler.postDelayed(this, mDelay);
         }
     };
+
     private Bitmap mCurrentBg;
+    private Bitmap mPreviewBitmap;
 
     public CellGridView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -225,6 +234,71 @@ public class CellGridView extends View {
                 return true;
             }
         };
+
+        mTouchPasteHandler = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(mPreviewBitmap == null) throw new Error("No Preview Bitmap found!");
+                int x = 0;
+                int y = 0;
+                Bitmap tempBg = Bitmap.createBitmap(mPreviewBitmap);
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        pause();
+                        x1 = (int) (event.getX());
+                        while(x1 % xAdjust != 0) {
+                            x1 -= 1;
+                        }
+                        y1 = (int) (event.getY());
+                        while(y1 % yAdjust != 0) {
+                            y1 -= 1;
+                        }
+                        if (x1 < 0) {x1 = 0;}
+                        if (y1 < 0) {y1 = 0;}
+                        x2 = x1;
+                        y2 = y1;
+
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        x2 = (int) (event.getX());
+                        y2 = (int) (event.getY());
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        while(x2 % xAdjust != 0) {
+                            x2 -= 1;
+                        }
+                        while(y2 % yAdjust != 0) {
+                            y2 -= 1;
+                        }
+                        if (x2 < 0) {x2 = 0;}
+                        if (y2 < 0) {y2 = 0;}
+
+                        if (!selected()){
+                            resume();
+                        }
+
+                        v.performClick();
+                        break;
+                    default:
+                        break;
+                }
+                tempBg = overlay(mCurrentBg, tempBg, x2, y2);
+                BitmapDrawable bd = new BitmapDrawable(tempBg);
+                setBackgroundDrawable(bd);
+                return true;
+            }
+        };
+    }
+
+    public void transferCellsFromPaste(boolean[][] cells, int[][] colors, int xOffset, int yOffset) {
+        for(int i = 0; i < cells.length; i++) {
+            for(int j = 0; j < cells[0].length; j++) {
+                if(i + xOffset + 2 >= mCellGrid.length ||
+                        j + yOffset + 2 >= mCellGrid[0].length) continue;
+                mCellGrid[i + xOffset + 2][j + yOffset + 2] = cells[i][j];
+                mColorGrid[i + xOffset + 2][j + yOffset + 2] = colors[i][j];
+            }
+        }
     }
 
     public void initRandomGrid() {
@@ -282,7 +356,7 @@ public class CellGridView extends View {
         initFlag = true;
     }
 
-    private void DrawGrid() {
+    public void DrawGrid() {
         Paint paint = new Paint();
         mCurrentBg = Bitmap.createBitmap(mViewSizeX, mViewSizeY, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(mCurrentBg);
@@ -477,5 +551,23 @@ public class CellGridView extends View {
         }
         Pair<boolean[][], int[][]> grids = new Pair<>(selectedArray, selectedArrayColors);
         return grids;
+    }
+
+    public void setPreviewBitmap(Bitmap mPreviewBitmap) {
+        this.mPreviewBitmap = mPreviewBitmap;
+    }
+
+    public Bitmap getPreviewBitmap() {
+        return this.mPreviewBitmap;
+    }
+
+    private Bitmap overlay(Bitmap bmp1, Bitmap bmp2, int x, int y) {
+        Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
+        Canvas canvas = new Canvas(bmOverlay);
+        canvas.drawBitmap(bmp1, new Matrix(), null);
+        BitmapDrawable bd = new BitmapDrawable(bmp2);
+        bd.setAlpha(50);
+        canvas.drawBitmap(bd.getBitmap(), x, y, null);
+        return bmOverlay;
     }
 }

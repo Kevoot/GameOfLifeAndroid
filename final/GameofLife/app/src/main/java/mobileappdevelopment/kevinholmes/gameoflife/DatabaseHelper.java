@@ -88,7 +88,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     }
 
     //Allows
-    public Pair<boolean[][], int[][]> requestGrids(String name){
+    public SerializableCellGrid requestGrids(String name){
         // Execute SQL to retrieve thing with proper name
         // the new byte array will be replaced by actual data once this is working
 
@@ -110,8 +110,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
         assert serializableCellGrid != null;
 
-        return new Pair<>(serializableCellGrid.getCellGrid(),
-                                                     serializableCellGrid.getColorGrid());
+        return serializableCellGrid;
     }
 
     // Allows us the ability to convert the entire grid and stats to a bytestream for saving to sql
