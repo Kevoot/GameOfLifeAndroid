@@ -406,6 +406,7 @@ public class CellGridView extends View {
     //James - Delete what is in the selected box
     public void deleteSelected(){
 
+        //Create temp variables to adjust
         int x1c = x1/xAdjust;
         int x2c = x2/xAdjust;
         int y1c = y1/yAdjust;

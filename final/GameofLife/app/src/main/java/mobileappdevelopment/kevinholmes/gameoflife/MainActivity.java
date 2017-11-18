@@ -62,19 +62,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mPaintButton = (ImageButton) findViewById(R.id.paintButton);
-
-        //mPaintButton.setClickable(false);
         mPaintButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!paintingFlag && !selectingFlag) {
+                    // Set state to disable buttons
                     SetState(true, false);
+                    // Pause the simulation to allow painting to not be interrupted
                     mCellGridView.pause();
                     // Check to make sure we have a canvas to draw on
                     if(!mCellGridView.initFlag) mCellGridView.initBlankGrid();
                     // Remove selection listener and switch to painting
                     mCellGridView.setOnTouchListener(mCellGridView.mTouchPaintHandler);
                 } else if (paintingFlag) {
+                    // Set state back to normal because were done painting
                     SetState(false, false);
                     // Add the painted cells to the current simulation
                     for(int i=0; i<mCellGridView.mPaintGrid.length; i++) {
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                         mCellGridView.deleteSelected();
                     } else throw new Error("Could not save selection to local database!");
 
-                    // Either way, unselect and resume
+                    // Either way, un-select and resume
                     mCellGridView.deselect();
                     mCellGridView.resume();
                     SetState(false, false);
@@ -161,19 +162,32 @@ public class MainActivity extends AppCompatActivity {
                     mCellGridView.pause();
                     // TODO: Begin db fragment
 
+                    int tx;
+                    int ty;
+                    if (mCellGridView.x1 < mCellGridView.x2) {
+                        tx = mCellGridView.x1 / mCellGridView.xAdjust;
+                    } else {
+                        tx = mCellGridView.x2 / mCellGridView.yAdjust;
+                    }
+                    if (mCellGridView.y1 < mCellGridView.y2) {
+                        ty = mCellGridView.y1 / mCellGridView.xAdjust;
+                    } else {
+                        ty = mCellGridView.y2 / mCellGridView.yAdjust;
+                    }
+
                     // WILL BE DELETED, use for testing paste functions
                     Pair<boolean[][], int[][]> temp = mDatabaseHelper.requestGrids("");
                     for(int i =0; i < temp.first.length - 1; i++) {
                         for(int j = 0; j < temp.first[0].length - 1; j++) {
-                            if (i+mCellGridView.x1/mCellGridView.xAdjust < mCellGridView.mGridSizeX && j+mCellGridView.y1/mCellGridView.yAdjust < mCellGridView.mGridSizeY) {
-                                mCellGridView.mCellGrid[i+mCellGridView.x1/mCellGridView.xAdjust][j+mCellGridView.y1/mCellGridView.yAdjust] = temp.first[i][j];
+                            if (i+tx < mCellGridView.mGridSizeX && j+ty < mCellGridView.mGridSizeY) {
+                                mCellGridView.mCellGrid[i+tx][j+ty] = temp.first[i][j];
                             }
                         }
                     }
                     for(int i =0; i < temp.second.length - 1; i++) {
                         for(int j = 0; j < temp.second[0].length - 1; j++) {
-                            if (i+mCellGridView.x1/mCellGridView.xAdjust < mCellGridView.mGridSizeX && j+mCellGridView.y1/mCellGridView.yAdjust < mCellGridView.mGridSizeY) {
-                                mCellGridView.mColorGrid[i+mCellGridView.x1/mCellGridView.xAdjust][j+mCellGridView.y1/mCellGridView.yAdjust] = temp.second[i][j];
+                            if (i+tx < mCellGridView.mGridSizeX && j+ty < mCellGridView.mGridSizeY) {
+                                mCellGridView.mColorGrid[i+tx][j+ty] = temp.second[i][j];
                             }
                         }
                     }
@@ -189,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
         mSaveAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 == 0) {
+                if(mCellGridView.selected()) {
                     mCellGridView.pause();
                     // TODO: Save whole grid to DB
                     if(!mDatabaseHelper.saveGrid(
@@ -275,19 +289,12 @@ public class MainActivity extends AppCompatActivity {
             mRandomizeButton.setAlpha(on);
             mCutButton.setAlpha(off);
             mCopyButton.setAlpha(off);
-            mPasteButton.setAlpha(on);
+            mPasteButton.setAlpha(off);
             mSaveAllButton.setAlpha(on);
             return true;
         }
         return false;
     }
 
-    public static boolean getSelectFlag () {
-        return selectingFlag;
-    }
-
-    public static boolean getPaintFlag () {
-        return selectingFlag;
-    }
 }
 
