@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
 
         mCellGridView = (CellGridView) findViewById(R.id.cellGridView);
 
-        // TODO: (Alex): Make sure I'm setting the context correctly here
         mDatabaseHelper = new DatabaseHelper(this);
         paintingFlag = false;
         selectingFlag = false;
@@ -258,6 +257,11 @@ public class MainActivity extends AppCompatActivity {
                 mCellGridView.pause();
                 ShowSizeDialog();
                 return true;
+            case R.id.clear_all_saves:
+                mCellGridView.pause();
+                ShowClearDialog();
+                mCellGridView.resume();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -301,6 +305,22 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    public void ShowClearDialog(){
+        final AlertDialog.Builder clearDialog = new AlertDialog.Builder(this);
+        clearDialog.setTitle("Clear All Saves");
+        clearDialog.setMessage("Are you sure you want to clear all saves?");
+        clearDialog.setIcon(android.R.drawable.ic_dialog_alert);
+        clearDialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int whichButton) {
+                mDatabaseHelper.clearAllSaves();
+            }});
+        clearDialog.setNegativeButton(android.R.string.no, null);
+        clearDialog.create();
+
+        clearDialog.show();
     }
 
     public void ShowSpeedDialog()

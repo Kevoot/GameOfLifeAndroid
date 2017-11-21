@@ -14,8 +14,6 @@ public class SaveContract {
 
         public final static String _ID = BaseColumns._ID;
 
-        public final static String COLUMN_SAVE_NAME = "save_name";
-
         public final static String COLUMN_SAVE_DATA = "save_data";
     }
 }

@@ -6,4 +6,6 @@
         android:title="Change Simulation Speed" />
     <item android:id="@+id/set_grid_size"
         android:title="Set Grid Size" />
+    <item android:id="@+id/clear_all_saves"
+        android:title="Clear All Saves" />
 </menu>

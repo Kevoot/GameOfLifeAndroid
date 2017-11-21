@@ -29,8 +29,6 @@ public class SerializableCellGrid implements Serializable {
     private int mNumAliveCells;
     // internal grid
     private boolean[][] mCellGrid;
-    // color grid
-    private int[][] mColorGrid;
     // Preview bitmap for fragments
     BitmapDataObject mPreviewBitmap;
 
@@ -42,10 +40,9 @@ public class SerializableCellGrid implements Serializable {
         mCellGrid = new boolean[0][0];
     }
 
-    public SerializableCellGrid(@NonNull boolean[][] cellGrid, @NonNull int[][] colorGrid) {
-        if(ValidateCellGrids(cellGrid, colorGrid)) {
+    public SerializableCellGrid(@NonNull boolean[][] cellGrid) {
+        if(ValidateCellGrids(cellGrid)) {
             mCellGrid = cellGrid;
-            mColorGrid = colorGrid;
             mCreationDateTime = DateFormat.getDateTimeInstance().format(new Date());
             mWidth = cellGrid.length;
             mHeight = cellGrid[0].length;
@@ -56,16 +53,16 @@ public class SerializableCellGrid implements Serializable {
                     if(anACellGrid) mNumAliveCells++;
                 }
             }
-            Bitmap bmp = Bitmap.createBitmap((colorGrid.length * xAdjust) + xAdjust,
-                    (colorGrid[0].length * yAdjust) + xAdjust, Bitmap.Config.ARGB_8888);
+            Bitmap bmp = Bitmap.createBitmap((cellGrid.length * xAdjust) + xAdjust,
+                    (cellGrid[0].length * yAdjust) + xAdjust, Bitmap.Config.ARGB_8888);
             Canvas tempCanvas = new Canvas(bmp);
             Paint paint = new Paint();
             paint.setColor(Color.GRAY);
             paint.setAntiAlias(true);
             tempCanvas.drawRect(0, 0, bmp.getWidth(), bmp.getHeight(), paint);
-            for(int i = 0; i < colorGrid.length; i++) {
-                for(int j = 0; j < colorGrid[0].length; j++) {
-                        paint.setColor(mCellGrid[i][j] ? mColorGrid[i][j] : Color.BLACK);
+            for(int i = 0; i < cellGrid.length; i++) {
+                for(int j = 0; j < cellGrid[0].length; j++) {
+                        paint.setColor(mCellGrid[i][j] ? Color.GREEN : Color.BLACK);
                         tempCanvas.drawCircle((i * xAdjust) + xAdjust, (j * yAdjust) + yAdjust, mCellRadius, paint);
                 }
             }
@@ -73,9 +70,8 @@ public class SerializableCellGrid implements Serializable {
         } else throw new Error("Invalid Cell Grid passed to Serializable Cell Constructor");
     }
 
-    private boolean ValidateCellGrids(@NonNull boolean[][] cellGrid, @NonNull int[][] colorGrid) {
-        return !((cellGrid.length == 0 || cellGrid[0].length == 0) &&
-                (colorGrid.length == 0 || colorGrid[0].length == 0));
+    private boolean ValidateCellGrids(@NonNull boolean[][] cellGrid) {
+        return !((cellGrid.length == 0 || cellGrid[0].length == 0));
     }
 
     public String getCreationDateTime() {
@@ -113,8 +109,4 @@ public class SerializableCellGrid implements Serializable {
     public void setCellGrid(boolean[][] mCellGrid) {
         this.mCellGrid = mCellGrid;
     }
-
-    public int[][] getColorGrid() { return mColorGrid; }
-
-    public void setColorGrid(int[][] grid) { this.mColorGrid = grid; }
 }
