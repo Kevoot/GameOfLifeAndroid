@@ -61,9 +61,6 @@ public class CellGridView extends View {
     // Grid containing painting results
     public boolean [][] mPaintGrid;
 
-    // Color grid, must match exact dimensions of mCellGrid
-    public int[][] mColorGrid;
-
     // Delay in milliseconds between each simulation step
     public int mDelay;
 
@@ -298,13 +295,12 @@ public class CellGridView extends View {
         };
     }
 
-    public void transferCellsFromPaste(boolean[][] cells, int[][] colors, int xOffset, int yOffset) {
+    public void transferCellsFromPaste(boolean[][] cells, int xOffset, int yOffset) {
         for(int i = 0; i < cells.length; i++) {
             for(int j = 0; j < cells[0].length; j++) {
                 if(i + xOffset + 2 >= mCellGrid.length ||
                         j + yOffset + 2 >= mCellGrid[0].length) continue;
                 mCellGrid[i + xOffset + 2][j + yOffset + 2] = cells[i][j];
-                mColorGrid[i + xOffset + 2][j + yOffset + 2] = colors[i][j];
             }
         }
     }
@@ -326,7 +322,6 @@ public class CellGridView extends View {
 
         // Create a grid of cells and a grid of colors for those cells
         mCellGrid = new boolean[mGridSizeX][mGridSizeY];
-        mColorGrid = new int[mGridSizeX][mGridSizeY];
 
         // Randomize at alive cells and colors
         RandomizeGrid();
@@ -356,7 +351,6 @@ public class CellGridView extends View {
 
         // Create a grid of cells and a grid of colors for those cells
         mCellGrid = new boolean[mGridSizeX][mGridSizeY];
-        mColorGrid = new int[mGridSizeX][mGridSizeY];
 
         // Randomize at alive cells and colors
         // RandomizeColors();
@@ -404,19 +398,6 @@ public class CellGridView extends View {
                 else {
                     mCellGrid[i][j] = false;
                 }
-            }
-        }
-    }
-
-    public void RandomizeColors() {
-        Random rand = new Random();
-
-        for(int i = 0; i < mGridSizeX; i++) {
-            for (int j = 0; j < mGridSizeY; j++) {
-                int r = rand.nextInt(255);
-                int g = rand.nextInt(255);
-                int b = rand.nextInt(255);
-                mColorGrid[i][j] = Color.argb(255, r, g, b);
             }
         }
     }
@@ -528,7 +509,7 @@ public class CellGridView extends View {
         }
     }
     //Added James - Good to be used for copy and cut functions
-    public Pair<boolean[][], int[][]> copySelected() {
+    public boolean[][] copySelected() {
 
         int x1c = x1/xAdjust;
         int x2c = x2/xAdjust;
@@ -561,11 +542,9 @@ public class CellGridView extends View {
         for(int i = 0; i < x2c-x1c; i++) {
             for(int j = 0; j < y2c-y1c; j++) {
                 selectedArray[i][j] = mCellGrid[x1c+i][y1c+j];
-                selectedArrayColors[i][j] = mColorGrid[x1c+i][y1c+j];
             }
         }
-        Pair<boolean[][], int[][]> grids = new Pair<>(selectedArray, selectedArrayColors);
-        return grids;
+        return selectedArray;
     }
 
     public void setPreviewBitmap(Bitmap mPreviewBitmap) {
