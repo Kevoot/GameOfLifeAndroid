@@ -16,6 +16,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
+
 import mobileappdevelopment.kevinholmes.gameoflife.SaveContract.SaveEntry;
 
 /**
@@ -25,6 +26,9 @@ import mobileappdevelopment.kevinholmes.gameoflife.SaveContract.SaveEntry;
 // TODO: (Alex): During SerializableCellGrid creation, use some kind of inner property here
     // to assign each saved segment an id.
 public class DatabaseHelper extends SQLiteOpenHelper{
+
+    // WILL BE DELETED. Use this to test paste functionality
+    public static byte[] tempPasteData;
 
     private static final String DATABASE_NAME = "gameoflife.db";
 
@@ -36,7 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db){
-        String SQL_CREATE_SAVE_TABLE = "CREATE TABLE" + SaveEntry.TABLE_NAME + " ("
+        String SQL_CREATE_SAVE_TABLE = "CREATE TABLE " + SaveEntry.TABLE_NAME + " ("
                 + SaveEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + SaveEntry.COLUMN_SAVE_NAME + " TEXT NOT NULL, "
                 + SaveEntry.COLUMN_SAVE_DATA + " BLOB NOT NULL); ";
@@ -61,6 +65,9 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         SerializableCellGrid grid = new SerializableCellGrid(grids.first, grids.second);
         byte[] bytes = serializeCellGrid(grid);
 
+        // WILL BE DELETED. Use this to test paste functionality
+        tempPasteData = bytes;
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(SaveEntry.COLUMN_SAVE_NAME, "DefaultName");
@@ -74,31 +81,29 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         else return true;
     }
 
-    //Allows you to request a save from the DB using its name
-    //TODO: needs testing
-    public Pair<boolean[][], int[][]> requestGrid(String name){
+    //Allows
+    public SerializableCellGrid requestGrids(String name){
         // Execute SQL to retrieve thing with proper name
         // the new byte array will be replaced by actual data once this is working
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        // Temporarily commented to test paste functionality
+        // SQLiteDatabase db = this.getReadableDatabase();
+        //String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME + " WHERE " +
+        //                       SaveEntry.COLUMN_SAVE_NAME + "=" + name;
+        // Cursor result = db.rawQuery(requestString, null);
+        // result.moveToFirst();
 
-        String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME + " WHERE " +
-                               SaveEntry.COLUMN_SAVE_NAME + "=" + name;
+        // WILL BE DELETED. Use this to test paste functionality
+        byte[] resultArray = tempPasteData;
+        // This will be the actual one to use once DB is up and running
+        // byte[] resultArray = result.getBlob(2);
 
-        Cursor result = db.rawQuery(requestString, null);
-        Pair<boolean[][], int[][]> grid = null;
 
-        //Make sure this is SOME data
-        //TODO: Need to add error checking here
-        if(result.moveToFirst()) {
-            byte[] resultArray = result.getBlob(2);
+        SerializableCellGrid serializableCellGrid = deserializeCellGrid(resultArray);
 
-            SerializableCellGrid serializableCellGrid = deserializeCellGrid(resultArray);
+        assert serializableCellGrid != null;
 
-            grid = new Pair<>(serializableCellGrid.getCellGrid(),
-                    serializableCellGrid.getColorGrid());
-        }
-        return grid;
+        return serializableCellGrid;
     }
 
     //Returns the list of all the names of the saves.
@@ -157,4 +162,5 @@ public class DatabaseHelper extends SQLiteOpenHelper{
             return null;
         }
     }
+
 }

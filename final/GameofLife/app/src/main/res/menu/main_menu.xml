@@ -4,4 +4,6 @@
         android:title="Manage Saved Grids" />
     <item android:id="@+id/change_speed"
         android:title="Change Simulation Speed" />
+    <item android:id="@+id/set_grid_size"
+        android:title="Set Grid Size" />
 </menu>

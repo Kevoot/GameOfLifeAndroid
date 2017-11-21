@@ -1,5 +1,6 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
+import android.graphics.Bitmap;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,23 +9,34 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
+import android.view.Gravity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.widget.TextView;
+import android.widget.LinearLayout;
+
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.mCellRadius;
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.xAdjust;
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.yAdjust;
 
 public class MainActivity extends AppCompatActivity {
     private CellGridView mCellGridView;
 
-    private ImageButton mNewGridButton;
-    private ImageButton mPaintButton;
-    private ImageButton mRandomizeButton;
-    private ImageButton mCutButton;
-    private ImageButton mCopyButton;
-    private ImageButton mPasteButton;
-    private ImageButton mSaveAllButton;
+    private static ImageButton mNewGridButton;
+    private static ImageButton mPaintButton;
+    private static ImageButton mRandomizeButton;
+    private static ImageButton mCutButton;
+    private static ImageButton mCopyButton;
+    private static ImageButton mPasteButton;
+    private static ImageButton mSaveAllButton;
 
     public DatabaseHelper mDatabaseHelper;
 
     // Indicates whether painting currently or not
-    public boolean paintingFlag;
-    public boolean selectingFlag;
+    public static boolean paintingFlag;
+    public static boolean selectingFlag;
+    public static boolean pastingFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO: (Alex): Make sure I'm setting the context correctly here
         mDatabaseHelper = new DatabaseHelper(this);
+        paintingFlag = false;
+        selectingFlag = false;
+        pastingFlag = false;
 
         // TODO: (Anyone): Add button disabling based on context
         // I.E. if Paint is selected, all other buttons should be temporarily disabled
@@ -62,19 +77,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mPaintButton = (ImageButton) findViewById(R.id.paintButton);
-
-        //mPaintButton.setClickable(false);
         mPaintButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!paintingFlag && !selectingFlag) {
+                    // Set state to disable buttons
                     SetState(true, false);
+                    // Pause the simulation to allow painting to not be interrupted
                     mCellGridView.pause();
                     // Check to make sure we have a canvas to draw on
                     if(!mCellGridView.initFlag) mCellGridView.initBlankGrid();
                     // Remove selection listener and switch to painting
                     mCellGridView.setOnTouchListener(mCellGridView.mTouchPaintHandler);
                 } else if (paintingFlag) {
+                    // Set state back to normal because were done painting
                     SetState(false, false);
                     // Add the painted cells to the current simulation
                     for(int i=0; i<mCellGridView.mPaintGrid.length; i++) {
@@ -109,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Pause simulation
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                if(selectingFlag) {
                     mCellGridView.pause();
                     Pair<boolean[][], int[][]> returnedGrids = mCellGridView.copySelected();
                     // TODO: Copy contents to local DB, don't delete unless save works
@@ -117,9 +133,11 @@ public class MainActivity extends AppCompatActivity {
                         mCellGridView.deleteSelected();
                     } else throw new Error("Could not save selection to local database!");
 
-                    // Either way, unselect and resume
+                    // Either way, un-select and resume
                     mCellGridView.deselect();
+                    mCellGridView.DrawGrid();
                     mCellGridView.resume();
+                    SetState(false, false);
                 }
             }
         });
@@ -138,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                 //         so no deletion
 
                 // Getting rid of those previous variables, just make sure there's a selection first
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                if(selectingFlag) {
                     mCellGridView.pause();
                     // TODO: Copy the cell grid values into the local DB (Will have to scale to get
                     // TODO: correct values)
@@ -146,7 +164,9 @@ public class MainActivity extends AppCompatActivity {
                     if(!mDatabaseHelper.saveSelection(returnedGrids)) {
                         throw new Error("Could not save selection to local database!");
                     }
+                    mCellGridView.DrawGrid();
                     mCellGridView.resume();
+                    SetState(false, false);
                 }
             }
         });
@@ -155,10 +175,31 @@ public class MainActivity extends AppCompatActivity {
         mPasteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                // Temporary for testing paste functionality
+                SerializableCellGrid pasteGrid = mDatabaseHelper.requestGrids("");
+                //
+
+                if(!selectingFlag && !pastingFlag) {
+                    pastingFlag = true;
                     mCellGridView.pause();
                     // TODO: Begin db fragment
+
+                    // WILL BE DELETED, use for testing paste functions.
+                    mCellGridView.setPreviewBitmap((pasteGrid.mPreviewBitmap.currentImage));
+                    //
+
+                    mCellGridView.setOnTouchListener(mCellGridView.mTouchPasteHandler);
+                    SetState(false, false);
+                } else if (!selectingFlag && pastingFlag) {
+                    mCellGridView.transferCellsFromPaste(pasteGrid.getCellGrid(),
+                            pasteGrid.getColorGrid(), ((mCellGridView.x2 / xAdjust) - 1),
+                            ((mCellGridView.y2 / yAdjust) - 1));
+                    mCellGridView.DrawGrid();
+                    mCellGridView.resume();
+                    pastingFlag = false;
+                    mCellGridView.setOnTouchListener(mCellGridView.mTouchSelectionHandler);
                 }
+
             }
         });
 
@@ -166,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
         mSaveAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mCellGridView.x1 + mCellGridView.x2 + mCellGridView.y1 + mCellGridView.y2 != 0) {
+                if(mCellGridView.selected()) {
                     mCellGridView.pause();
                     // TODO: Save whole grid to DB
                     if(!mDatabaseHelper.saveGrid(
@@ -174,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
                         throw new Error("Could not save grid to local database!");
                     }
                     mCellGridView.resume();
+                    SetState(false, false);
                 }
             }
         });
@@ -206,19 +248,21 @@ public class MainActivity extends AppCompatActivity {
                 mCellGridView.resume();
                 return true;
             case R.id.change_speed:
+                if (mCellGridView.initFlag) {
+                    ShowSpeedDialog();
+                }
+                return true;
+            case R.id.set_grid_size:
+                mCellGridView.initFlag = false;
                 mCellGridView.pause();
-                // TODO: (George): Create some UI element that allows for variable speed change
-                // Will have to experiment with max / min speed to see what feels best.
-                // Maybe add hardware polling to figure out what the phone can feasibly handle?
-                // variable to change from result is the mDelay in mCellGridView
-                mCellGridView.resume();
+                ShowSizeDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private boolean SetState (boolean painting, boolean selected){
+    public static boolean SetState (boolean painting, boolean selected){
         float off = (float)0.5;
         float on = (float)1.0;
 
@@ -241,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
             mRandomizeButton.setAlpha(off);
             mCutButton.setAlpha(on);
             mCopyButton.setAlpha(on);
-            mPasteButton.setAlpha(off);
+            mPasteButton.setAlpha(on);
             mSaveAllButton.setAlpha(off);
             return true;
         }
@@ -251,11 +295,119 @@ public class MainActivity extends AppCompatActivity {
             mRandomizeButton.setAlpha(on);
             mCutButton.setAlpha(off);
             mCopyButton.setAlpha(off);
-            mPasteButton.setAlpha(on);
+            mPasteButton.setAlpha(off);
             mSaveAllButton.setAlpha(on);
             return true;
         }
         return false;
+    }
+
+    public void ShowSpeedDialog()
+    {
+        final AlertDialog.Builder popDialog = new AlertDialog.Builder(this);
+        final SeekBar seek = new SeekBar(this);
+        seek.setMax(2000);
+        seek.setProgress(2001-mCellGridView.mDelay);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        popDialog.setTitle("Please Select The Speed");
+        layout.addView(seek);
+        TextView myMsg = new TextView(this);
+        myMsg.setText("Slower         Faster");
+        myMsg.setGravity(Gravity.CENTER_HORIZONTAL);
+        layout.addView(myMsg);
+
+        popDialog.setView(layout);
+
+
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+                //Do something here with new value
+                mCellGridView.mDelay = 2000-progress;
+            }
+
+            public void onStartTrackingTouch(SeekBar arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
+
+        // Button OK
+        popDialog.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // mCellGridView.resume();
+                        dialog.dismiss();
+                    }
+
+                });
+
+
+        popDialog.create();
+        popDialog.show();
+
+    }
+
+    public void ShowSizeDialog()
+    {
+        final AlertDialog.Builder popDialog = new AlertDialog.Builder(this);
+        final SeekBar seek = new SeekBar(this);
+        seek.setMax(50);
+        seek.setProgress(50-mCellGridView.xAdjust);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        popDialog.setTitle("Please Select The Speed");
+        layout.addView(seek);
+        TextView myMsg = new TextView(this);
+        myMsg.setText("Larger Cells       Smaller Cells");
+        myMsg.setGravity(Gravity.CENTER_HORIZONTAL);
+        layout.addView(myMsg);
+
+        popDialog.setView(layout);
+
+
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+                //Do something here with new value
+                if(progress > 45) progress = 45;
+                if(progress < 5) progress = 5;
+                xAdjust = yAdjust = 50-progress;
+                mCellRadius = xAdjust / 2;
+            }
+
+            public void onStartTrackingTouch(SeekBar arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
+
+        // Button OK
+        popDialog.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        mCellGridView.initRandomGrid();
+                        mCellGridView.resume();
+                        dialog.dismiss();
+                    }
+
+                });
+
+
+        popDialog.create();
+        popDialog.show();
+
     }
 }
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.nio.Buffer;
 import java.util.Random;
 
 /**
@@ -22,6 +24,7 @@ import java.util.Random;
 public class CellGridView extends View {
     // Set values for initial (non-randomized) alive cells
     private final Paint mAliveCellPaint;
+    private final Paint mNewCellPaint;
 
     // Flag to indicate whether or not the grid has been initialized and is now at a drawable state
     public boolean initFlag;
@@ -29,8 +32,13 @@ public class CellGridView extends View {
     // Value for any void space (should use background setting instead of painting
     // as opposed to paint each individual cell with this)
     private final Paint mDeadCellPaint;
+
+    // Only one of these should be loaded at any given time.
+    // Attach any given one of them to the mHandler
     public final OnTouchListener mTouchSelectionHandler;
     public final OnTouchListener mTouchPaintHandler;
+    public final OnTouchListener mTouchPasteHandler;
+
 
     // Raw View dimensions
     public int mViewSizeX, mViewSizeY;
@@ -40,13 +48,15 @@ public class CellGridView extends View {
     public int mGridSizeX, mGridSizeY;
 
     // Adjustment factors, must divide screen x and y size evenly
-    public int xAdjust, yAdjust;
+    public static int xAdjust, yAdjust;
 
     // Cell radius (half an adjustment)
-    public int mCellRadius;
+    public static int mCellRadius;
 
     // Actual grid containing 0 or 1's indicating dead or alive cell
     public boolean [][] mCellGrid;
+
+    public boolean [][] mPrevCellGrid;
 
     // Grid containing painting results
     public boolean [][] mPaintGrid;
@@ -74,7 +84,9 @@ public class CellGridView extends View {
             mHandler.postDelayed(this, mDelay);
         }
     };
+
     private Bitmap mCurrentBg;
+    private Bitmap mPreviewBitmap;
 
     public CellGridView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -82,8 +94,8 @@ public class CellGridView extends View {
         // Initially set to 1 second between each step
         mDelay = 1000;
 
-        xAdjust = 15;
-        yAdjust = 15;
+        xAdjust = 10;
+        yAdjust = 10;
         mCellRadius = xAdjust / 2;
 
         mAliveCellPaint = new Paint();
@@ -94,6 +106,11 @@ public class CellGridView extends View {
         mDeadCellPaint.setColor(Color.BLACK);
         mDeadCellPaint.setStrokeWidth(2);
         mDeadCellPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        mNewCellPaint = new Paint();
+        mNewCellPaint.setColor(Color.BLUE);
+        mNewCellPaint.setStrokeWidth(2);
+        mNewCellPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
 
         // Added by James 11/10 - Sets the x and y box for selected area
         mTouchSelectionHandler = new View.OnTouchListener() {
@@ -102,6 +119,7 @@ public class CellGridView extends View {
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        pause();
                         x1 = (int) (event.getX());
                         while(x1 % xAdjust != 0) {
                             x1 -= 1;
@@ -114,11 +132,12 @@ public class CellGridView extends View {
                         if (y1 < 0) {y1 = 0;}
                         x2 = x1;
                         y2 = y1;
-                        pause();
+
                         break;
                     case MotionEvent.ACTION_MOVE:
                         x2 = (int) (event.getX());
                         y2 = (int) (event.getY());
+                        break;
                     case MotionEvent.ACTION_UP:
                         while(x2 % xAdjust != 0) {
                             x2 -= 1;
@@ -128,6 +147,10 @@ public class CellGridView extends View {
                         }
                         if (x2 < 0) {x2 = 0;}
                         if (y2 < 0) {y2 = 0;}
+
+                        if (!selected()){
+                            resume();
+                        }
 
                         v.performClick();
                         break;
@@ -142,6 +165,9 @@ public class CellGridView extends View {
                     paint.setStrokeWidth(10);
                     paint.setStyle(Paint.Style.STROKE);
                     canvas.drawRect(x1, y1, x2 - xAdjust, y2 - yAdjust, paint);
+                    MainActivity.SetState(false, true);
+                } else {
+                    MainActivity.SetState(false, false);
                 }
                 BitmapDrawable bd = new BitmapDrawable(tempBg);
                 setBackgroundDrawable(bd);
@@ -216,6 +242,71 @@ public class CellGridView extends View {
                 return true;
             }
         };
+
+        mTouchPasteHandler = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(mPreviewBitmap == null) throw new Error("No Preview Bitmap found!");
+                int x = 0;
+                int y = 0;
+                Bitmap tempBg = Bitmap.createBitmap(mPreviewBitmap);
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        pause();
+                        x1 = (int) (event.getX());
+                        while(x1 % xAdjust != 0) {
+                            x1 -= 1;
+                        }
+                        y1 = (int) (event.getY());
+                        while(y1 % yAdjust != 0) {
+                            y1 -= 1;
+                        }
+                        if (x1 < 0) {x1 = 0;}
+                        if (y1 < 0) {y1 = 0;}
+                        x2 = x1;
+                        y2 = y1;
+
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        x2 = (int) (event.getX());
+                        y2 = (int) (event.getY());
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        while(x2 % xAdjust != 0) {
+                            x2 -= 1;
+                        }
+                        while(y2 % yAdjust != 0) {
+                            y2 -= 1;
+                        }
+                        if (x2 < 0) {x2 = 0;}
+                        if (y2 < 0) {y2 = 0;}
+
+                        if (!selected()){
+                            resume();
+                        }
+
+                        v.performClick();
+                        break;
+                    default:
+                        break;
+                }
+                tempBg = overlay(mCurrentBg, tempBg, x2, y2);
+                BitmapDrawable bd = new BitmapDrawable(tempBg);
+                setBackgroundDrawable(bd);
+                return true;
+            }
+        };
+    }
+
+    public void transferCellsFromPaste(boolean[][] cells, int[][] colors, int xOffset, int yOffset) {
+        for(int i = 0; i < cells.length; i++) {
+            for(int j = 0; j < cells[0].length; j++) {
+                if(i + xOffset + 2 >= mCellGrid.length ||
+                        j + yOffset + 2 >= mCellGrid[0].length) continue;
+                mCellGrid[i + xOffset + 2][j + yOffset + 2] = cells[i][j];
+                mColorGrid[i + xOffset + 2][j + yOffset + 2] = colors[i][j];
+            }
+        }
     }
 
     public void initRandomGrid() {
@@ -239,7 +330,9 @@ public class CellGridView extends View {
 
         // Randomize at alive cells and colors
         RandomizeGrid();
-        RandomizeColors();
+        // RandomizeColors();
+
+        mPrevCellGrid = mCellGrid;
 
         // Begin simulation
         mHandler.postDelayed(mRunnable, 1000);
@@ -266,18 +359,20 @@ public class CellGridView extends View {
         mColorGrid = new int[mGridSizeX][mGridSizeY];
 
         // Randomize at alive cells and colors
-        RandomizeColors();
+        // RandomizeColors();
+        mPrevCellGrid = mCellGrid;
 
         // Begin simulation
         mHandler.postDelayed(mRunnable, 1000);
         initFlag = true;
     }
 
-    private void DrawGrid() {
+    public void DrawGrid() {
         Paint paint = new Paint();
         mCurrentBg = Bitmap.createBitmap(mViewSizeX, mViewSizeY, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(mCurrentBg);
-
+        paint.setAntiAlias(true);
+        paint.setColor(Color.GREEN);
         // Draw background
         canvas.drawRect(0, 0, mViewSizeX, mViewSizeY, mDeadCellPaint);
 
@@ -285,9 +380,11 @@ public class CellGridView extends View {
         for(int i = 0; i < mGridSizeX; i++) {
             for(int j = 0; j < mGridSizeY; j++) {
                 if(mCellGrid[i][j]) {
-                    paint.setColor(mColorGrid[i][j]);
-                    paint.setAntiAlias(true);
-                    canvas.drawCircle(i * xAdjust, j * yAdjust, mCellRadius, paint);
+                    // paint.setColor(mColorGrid[i][j]);
+                    if(mPrevCellGrid[i][j])
+                        canvas.drawCircle(i * xAdjust, j * yAdjust, mCellRadius, mAliveCellPaint);
+                    else
+                        canvas.drawCircle(i * xAdjust, j * yAdjust, mCellRadius, mNewCellPaint);
                 }
             }
         }
@@ -363,6 +460,7 @@ public class CellGridView extends View {
             }
         }
 
+        mPrevCellGrid = mCellGrid;
         mCellGrid = future;
     }
 
@@ -397,6 +495,7 @@ public class CellGridView extends View {
     //James - Delete what is in the selected box
     public void deleteSelected(){
 
+        //Create temp variables to adjust
         int x1c = x1/xAdjust;
         int x2c = x2/xAdjust;
         int y1c = y1/yAdjust;
@@ -414,6 +513,12 @@ public class CellGridView extends View {
             y1c = y2c;
             y2c = temp;
         }
+
+        //Make sure the bounds are in the box
+        if (x1c < 0){x1c = 0;}
+        if (y1c < 0){y1c = 0;}
+        if (x2c > mGridSizeX-1){x2c = mGridSizeX-1;}
+        if (y2c > mGridSizeY-1){y2c = mGridSizeY-1;}
 
         // Make the cells in the selected box dead
         for(int i = x1c; i < x2c; i++) {
@@ -443,6 +548,12 @@ public class CellGridView extends View {
             y2c = temp;
         }
 
+        //Make sure the bounds are in the box
+        if (x1c < 0){x1c = 0;}
+        if (y1c < 0){y1c = 0;}
+        if (x2c > mGridSizeX-1){x2c = mGridSizeX-1;}
+        if (y2c > mGridSizeY-1){y2c = mGridSizeY-1;}
+
         boolean[][] selectedArray = new boolean[x2c-x1c][y2c-y1c];
         int [][] selectedArrayColors = new int[x2c-x1c][y2c-y1c];
 
@@ -455,5 +566,23 @@ public class CellGridView extends View {
         }
         Pair<boolean[][], int[][]> grids = new Pair<>(selectedArray, selectedArrayColors);
         return grids;
+    }
+
+    public void setPreviewBitmap(Bitmap mPreviewBitmap) {
+        this.mPreviewBitmap = mPreviewBitmap;
+    }
+
+    public Bitmap getPreviewBitmap() {
+        return this.mPreviewBitmap;
+    }
+
+    private Bitmap overlay(Bitmap bmp1, Bitmap bmp2, int x, int y) {
+        Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
+        Canvas canvas = new Canvas(bmOverlay);
+        canvas.drawBitmap(bmp1, new Matrix(), null);
+        BitmapDrawable bd = new BitmapDrawable(bmp2);
+        bd.setAlpha(50);
+        canvas.drawBitmap(bd.getBitmap(), x, y, null);
+        return bmOverlay;
     }
 }
