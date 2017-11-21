@@ -254,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.set_grid_size:
                 mCellGridView.initFlag = false;
+                mCellGridView.pause();
                 ShowSizeDialog();
                 return true;
             default:
@@ -396,6 +397,8 @@ public class MainActivity extends AppCompatActivity {
         popDialog.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
+                        mCellGridView.initRandomGrid();
+                        mCellGridView.resume();
                         dialog.dismiss();
                     }
 

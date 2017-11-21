@@ -91,8 +91,8 @@ public class CellGridView extends View {
         // Initially set to 1 second between each step
         mDelay = 1000;
 
-        xAdjust = 5;
-        yAdjust = 5;
+        xAdjust = 10;
+        yAdjust = 10;
         mCellRadius = xAdjust / 2;
 
         mAliveCellPaint = new Paint();
