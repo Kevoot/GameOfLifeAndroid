@@ -40,7 +40,7 @@ public class DatabaseFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 // DO SOMETHING
-                SerializableCellGrid grid = databaseHelper.requestGrids(menuItems.get(i));
+                pasteGrid = databaseHelper.requestGrids(menuItems.get(i));
             }
         });
         return view;
