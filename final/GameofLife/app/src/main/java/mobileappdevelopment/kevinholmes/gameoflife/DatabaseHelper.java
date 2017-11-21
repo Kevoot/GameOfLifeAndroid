@@ -5,8 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
@@ -16,9 +14,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.util.List;
+import java.util.ArrayList;
+
 
 import mobileappdevelopment.kevinholmes.gameoflife.SaveContract.SaveEntry;
 
@@ -58,14 +55,11 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     // TODO: Implement stub functions
     public boolean saveSelection(Pair<boolean[][], int[][]> grids) {
-        boolean success = saveGrid(grids);
-        // TODO: (Alex): try saving to local db, if success return true, else false
-        if(success) {
-            return true;
-        }
-        else return false;
+        return saveGrid(grids);
     }
 
+    //Save function for saving an amount of the grid
+    //TODO: needs testing
     public boolean saveGrid(Pair<boolean[][], int[][]> grids) {
         // Using this class ensures all values are in valid range
         SerializableCellGrid grid = new SerializableCellGrid(grids.first, grids.second);
@@ -101,7 +95,6 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
         // WILL BE DELETED. Use this to test paste functionality
         byte[] resultArray = tempPasteData;
-
         // This will be the actual one to use once DB is up and running
         // byte[] resultArray = result.getBlob(2);
 
@@ -111,6 +104,23 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         assert serializableCellGrid != null;
 
         return serializableCellGrid;
+    }
+
+    //Returns the list of all the names of the saves.
+    public ArrayList<String> getSaveNames(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME;
+
+        Cursor result = db.rawQuery(requestString, null);
+        ArrayList<String> names = new ArrayList<>();
+
+        if(result.moveToFirst()){
+            do{
+                names.add(result.getString(1));
+            }while(result.moveToNext());
+        }
+
+        return names;
     }
 
     // Allows us the ability to convert the entire grid and stats to a bytestream for saving to sql
