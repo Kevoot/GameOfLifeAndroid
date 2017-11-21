@@ -8,6 +8,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
+import android.view.Gravity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.widget.TextView;
+import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity {
     private CellGridView mCellGridView;
@@ -211,7 +217,10 @@ public class MainActivity extends AppCompatActivity {
                 // Will have to experiment with max / min speed to see what feels best.
                 // Maybe add hardware polling to figure out what the phone can feasibly handle?
                 // variable to change from result is the mDelay in mCellGridView
-                mCellGridView.resume();
+                if (mCellGridView.initFlag) {
+                    ShowSpeedDialog();
+                }
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -256,6 +265,58 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    public void ShowSpeedDialog()
+    {
+        final AlertDialog.Builder popDialog = new AlertDialog.Builder(this);
+        final SeekBar seek = new SeekBar(this);
+        seek.setMax(2000);
+        seek.setProgress(2000-mCellGridView.mDelay);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        popDialog.setTitle("Please Select The Speed");
+        layout.addView(seek);
+        TextView myMsg = new TextView(this);
+        myMsg.setText("Slower         Faster");
+        myMsg.setGravity(Gravity.CENTER_HORIZONTAL);
+        layout.addView(myMsg);
+
+        popDialog.setView(layout);
+
+
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+                //Do something here with new value
+                mCellGridView.mDelay = 2000-progress;
+            }
+
+            public void onStartTrackingTouch(SeekBar arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
+
+        // Button OK
+        popDialog.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        mCellGridView.resume();
+                        dialog.dismiss();
+                    }
+
+                });
+
+
+        popDialog.create();
+        popDialog.show();
+
     }
 }
 
