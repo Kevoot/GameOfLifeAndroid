@@ -24,6 +24,7 @@ import java.util.Random;
 public class CellGridView extends View {
     // Set values for initial (non-randomized) alive cells
     private final Paint mAliveCellPaint;
+    private final Paint mNewCellPaint;
 
     // Flag to indicate whether or not the grid has been initialized and is now at a drawable state
     public boolean initFlag;
@@ -54,6 +55,8 @@ public class CellGridView extends View {
 
     // Actual grid containing 0 or 1's indicating dead or alive cell
     public boolean [][] mCellGrid;
+
+    public boolean [][] mPrevCellGrid;
 
     // Grid containing painting results
     public boolean [][] mPaintGrid;
@@ -103,6 +106,11 @@ public class CellGridView extends View {
         mDeadCellPaint.setColor(Color.BLACK);
         mDeadCellPaint.setStrokeWidth(2);
         mDeadCellPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        mNewCellPaint = new Paint();
+        mNewCellPaint.setColor(Color.BLUE);
+        mNewCellPaint.setStrokeWidth(2);
+        mNewCellPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
 
         // Added by James 11/10 - Sets the x and y box for selected area
         mTouchSelectionHandler = new View.OnTouchListener() {
@@ -322,7 +330,9 @@ public class CellGridView extends View {
 
         // Randomize at alive cells and colors
         RandomizeGrid();
-        RandomizeColors();
+        // RandomizeColors();
+
+        mPrevCellGrid = mCellGrid;
 
         // Begin simulation
         mHandler.postDelayed(mRunnable, 1000);
@@ -349,7 +359,8 @@ public class CellGridView extends View {
         mColorGrid = new int[mGridSizeX][mGridSizeY];
 
         // Randomize at alive cells and colors
-        RandomizeColors();
+        // RandomizeColors();
+        mPrevCellGrid = mCellGrid;
 
         // Begin simulation
         mHandler.postDelayed(mRunnable, 1000);
@@ -360,7 +371,8 @@ public class CellGridView extends View {
         Paint paint = new Paint();
         mCurrentBg = Bitmap.createBitmap(mViewSizeX, mViewSizeY, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(mCurrentBg);
-
+        paint.setAntiAlias(true);
+        paint.setColor(Color.GREEN);
         // Draw background
         canvas.drawRect(0, 0, mViewSizeX, mViewSizeY, mDeadCellPaint);
 
@@ -368,9 +380,11 @@ public class CellGridView extends View {
         for(int i = 0; i < mGridSizeX; i++) {
             for(int j = 0; j < mGridSizeY; j++) {
                 if(mCellGrid[i][j]) {
-                    paint.setColor(mColorGrid[i][j]);
-                    paint.setAntiAlias(true);
-                    canvas.drawCircle(i * xAdjust, j * yAdjust, mCellRadius, paint);
+                    // paint.setColor(mColorGrid[i][j]);
+                    if(mPrevCellGrid[i][j])
+                        canvas.drawCircle(i * xAdjust, j * yAdjust, mCellRadius, mAliveCellPaint);
+                    else
+                        canvas.drawCircle(i * xAdjust, j * yAdjust, mCellRadius, mNewCellPaint);
                 }
             }
         }
@@ -446,6 +460,7 @@ public class CellGridView extends View {
             }
         }
 
+        mPrevCellGrid = mCellGrid;
         mCellGrid = future;
     }
 
