@@ -242,12 +242,13 @@ public class MainActivity extends AppCompatActivity {
             case R.id.save_mgmt:
                 mCellGridView.pause();
                 // TODO: (Alex & George): bring up save management fragment for deleting
+
                 // previously saved selections & full grids
                 // After completion, resume
                 mCellGridView.resume();
                 return true;
             case R.id.change_speed:
-                mCellGridView.pause();
+                // mCellGridView.pause();
                 // TODO: (George): Create some UI element that allows for variable speed change
                 // Will have to experiment with max / min speed to see what feels best.
                 // Maybe add hardware polling to figure out what the phone can feasibly handle?
@@ -341,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
         popDialog.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        mCellGridView.resume();
+                        // mCellGridView.resume();
                         dialog.dismiss();
                     }
 
