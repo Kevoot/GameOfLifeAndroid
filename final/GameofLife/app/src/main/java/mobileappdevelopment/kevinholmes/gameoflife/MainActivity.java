@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.mCellRadius;
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.xAdjust;
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.yAdjust;
 
@@ -242,21 +243,18 @@ public class MainActivity extends AppCompatActivity {
             case R.id.save_mgmt:
                 mCellGridView.pause();
                 // TODO: (Alex & George): bring up save management fragment for deleting
-
                 // previously saved selections & full grids
                 // After completion, resume
                 mCellGridView.resume();
                 return true;
             case R.id.change_speed:
-                // mCellGridView.pause();
-                // TODO: (George): Create some UI element that allows for variable speed change
-                // Will have to experiment with max / min speed to see what feels best.
-                // Maybe add hardware polling to figure out what the phone can feasibly handle?
-                // variable to change from result is the mDelay in mCellGridView
                 if (mCellGridView.initFlag) {
                     ShowSpeedDialog();
                 }
-
+                return true;
+            case R.id.set_grid_size:
+                mCellGridView.initFlag = false;
+                ShowSizeDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -302,12 +300,13 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
+
     public void ShowSpeedDialog()
     {
         final AlertDialog.Builder popDialog = new AlertDialog.Builder(this);
         final SeekBar seek = new SeekBar(this);
         seek.setMax(2000);
-        seek.setProgress(2000-mCellGridView.mDelay);
+        seek.setProgress(2001-mCellGridView.mDelay);
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         popDialog.setTitle("Please Select The Speed");
@@ -343,6 +342,60 @@ public class MainActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // mCellGridView.resume();
+                        dialog.dismiss();
+                    }
+
+                });
+
+
+        popDialog.create();
+        popDialog.show();
+
+    }
+
+    public void ShowSizeDialog()
+    {
+        final AlertDialog.Builder popDialog = new AlertDialog.Builder(this);
+        final SeekBar seek = new SeekBar(this);
+        seek.setMax(50);
+        seek.setProgress(50-mCellGridView.xAdjust);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        popDialog.setTitle("Please Select The Speed");
+        layout.addView(seek);
+        TextView myMsg = new TextView(this);
+        myMsg.setText("Larger Cells       Smaller Cells");
+        myMsg.setGravity(Gravity.CENTER_HORIZONTAL);
+        layout.addView(myMsg);
+
+        popDialog.setView(layout);
+
+
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+                //Do something here with new value
+                if(progress > 45) progress = 45;
+                if(progress < 5) progress = 5;
+                xAdjust = yAdjust = 50-progress;
+                mCellRadius = xAdjust / 2;
+            }
+
+            public void onStartTrackingTouch(SeekBar arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
+
+        // Button OK
+        popDialog.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
 
