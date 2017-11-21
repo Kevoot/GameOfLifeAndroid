@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private static ImageButton mCopyButton;
     private static ImageButton mPasteButton;
     private static ImageButton mSaveAllButton;
+    public static SerializableCellGrid pasteGrid;
 
     public DatabaseHelper mDatabaseHelper;
 
