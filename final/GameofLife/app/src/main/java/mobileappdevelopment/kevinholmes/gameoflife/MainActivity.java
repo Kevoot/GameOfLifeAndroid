@@ -127,9 +127,8 @@ public class MainActivity extends AppCompatActivity {
                 // Pause simulation
                 if(selectingFlag) {
                     mCellGridView.pause();
-                    Pair<boolean[][], int[][]> returnedGrids = mCellGridView.copySelected();
                     // TODO: Copy contents to local DB, don't delete unless save works
-                    if(mDatabaseHelper.saveSelection(returnedGrids)) {
+                    if(mDatabaseHelper.saveGrid(mCellGridView.copySelected())) {
                         mCellGridView.deleteSelected();
                     } else throw new Error("Could not save selection to local database!");
 
@@ -160,8 +159,7 @@ public class MainActivity extends AppCompatActivity {
                     mCellGridView.pause();
                     // TODO: Copy the cell grid values into the local DB (Will have to scale to get
                     // TODO: correct values)
-                    Pair<boolean[][], int[][]> returnedGrids = mCellGridView.copySelected();
-                    if(!mDatabaseHelper.saveSelection(returnedGrids)) {
+                    if(!mDatabaseHelper.saveGrid(mCellGridView.copySelected())) {
                         throw new Error("Could not save selection to local database!");
                     }
                     mCellGridView.DrawGrid();
@@ -176,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Temporary for testing paste functionality
-                SerializableCellGrid pasteGrid = mDatabaseHelper.requestGrids("");
+                SerializableCellGrid pasteGrid = mDatabaseHelper.requestGrid(0);
                 //
 
                 if(!selectingFlag && !pastingFlag) {
@@ -192,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                     SetState(false, false);
                 } else if (!selectingFlag && pastingFlag) {
                     mCellGridView.transferCellsFromPaste(pasteGrid.getCellGrid(),
-                            pasteGrid.getColorGrid(), ((mCellGridView.x2 / xAdjust) - 1),
+                            ((mCellGridView.x2 / xAdjust) - 1),
                             ((mCellGridView.y2 / yAdjust) - 1));
                     mCellGridView.DrawGrid();
                     mCellGridView.resume();
@@ -211,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
                     mCellGridView.pause();
                     // TODO: Save whole grid to DB
                     if(!mDatabaseHelper.saveGrid(
-                            new Pair<>(mCellGridView.mCellGrid, mCellGridView.mColorGrid))) {
+                            mCellGridView.mCellGrid)) {
                         throw new Error("Could not save grid to local database!");
                     }
                     mCellGridView.resume();
@@ -260,7 +258,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.clear_all_saves:
                 mCellGridView.pause();
                 ShowClearDialog();
-                mCellGridView.resume();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -318,6 +315,14 @@ public class MainActivity extends AppCompatActivity {
                 mDatabaseHelper.clearAllSaves();
             }});
         clearDialog.setNegativeButton(android.R.string.no, null);
+        clearDialog.setOnDismissListener(new AlertDialog.OnDismissListener() {
+
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if(mCellGridView.initFlag)
+                    mCellGridView.resume();
+            }
+        });
         clearDialog.create();
 
         clearDialog.show();
