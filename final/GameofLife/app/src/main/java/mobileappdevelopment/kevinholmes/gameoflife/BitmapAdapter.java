@@ -2,24 +2,24 @@ package mobileappdevelopment.kevinholmes.gameoflife;
 
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
-import android.util.Pair;
+import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 
 import java.util.ArrayList;
 
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.pasteGrid;
+import mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mDatabaseHelper;
 
 /**
  * Created by George Le on 11/21/2017.
  */
 
-public class BitmapAdapter extends ArrayAdapter<Pair<Integer, BitmapDataObject>> {
+public class BitmapAdapter extends ArrayAdapter<Pair<Long, BitmapDataObject>> {
 
-    public BitmapAdapter(Context context, ArrayList<Pair<Integer, BitmapDataObject>> grids){
+    public BitmapAdapter(Context context, ArrayList<Pair<Long, BitmapDataObject>> grids){
         super(context, 0, grids);
     }
 
@@ -32,7 +32,7 @@ public class BitmapAdapter extends ArrayAdapter<Pair<Integer, BitmapDataObject>>
 
         final GridItemDisplay imageView = (GridItemDisplay) listItemView.findViewById(R.id.image);
 
-        Pair<Integer, BitmapDataObject> grid = getItem(position);
+        Pair<Long, BitmapDataObject> grid = getItem(position);
 
         imageView.id = grid.first;
         imageView.setImageDrawable(new BitmapDrawable(grid.second.currentImage));

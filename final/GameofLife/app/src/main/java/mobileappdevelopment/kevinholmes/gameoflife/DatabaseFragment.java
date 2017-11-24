@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import android.widget.Button;
 import android.widget.ListView;
+
 /**
  * Created by George Le on 11/14/2017.
  */
@@ -26,10 +27,18 @@ public class DatabaseFragment extends ListFragment {
             view = LayoutInflater.from(getContext()).inflate(R.layout.db_fragment, container, false);
         }
 
-        BitmapAdapter adapter = new BitmapAdapter(this.getContext(), );
+        BitmapAdapter adapter = new BitmapAdapter(this.getContext(), databaseHelper.getPreviewImages());
 
         ListView listView = (ListView) view.findViewById(R.id.list);
         listView.setAdapter(adapter);
+
+        final Button button = view.findViewById(R.id.Cancel);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // return to previous activity
+                getActivity().onBackPressed();
+            }
+        });
 
         return view;
     }
