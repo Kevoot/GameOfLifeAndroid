@@ -15,6 +15,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.List;
 
 
 import mobileappdevelopment.kevinholmes.gameoflife.SaveContract.SaveEntry;
@@ -34,6 +37,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     private static final int DATABASE_VERSION = 1;
 
+    private static ArrayList<Pair<Long, BitmapDataObject>> savePreviews;
+
     public DatabaseHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -42,10 +47,11 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase db){
         String SQL_CREATE_SAVE_TABLE = "CREATE TABLE " + SaveEntry.TABLE_NAME + " ("
                 + SaveEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + SaveEntry.COLUMN_SAVE_NAME + " TEXT NOT NULL, "
                 + SaveEntry.COLUMN_SAVE_DATA + " BLOB NOT NULL); ";
 
         db.execSQL(SQL_CREATE_SAVE_TABLE);
+
+        savePreviews = new ArrayList<>();
     }
 
     @Override
@@ -53,51 +59,38 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         //do stuff
     }
 
-    // TODO: Implement stub functions
-    public boolean saveSelection(Pair<boolean[][], int[][]> grids) {
-        return saveGrid(grids);
-    }
-
     //Save function for saving an amount of the grid
-    //TODO: needs testing
-    public boolean saveGrid(Pair<boolean[][], int[][]> grids) {
+    public boolean saveGrid(boolean[][] grid) {
         // Using this class ensures all values are in valid range
-        SerializableCellGrid grid = new SerializableCellGrid(grids.first, grids.second);
-        byte[] bytes = serializeCellGrid(grid);
-
-        // WILL BE DELETED. Use this to test paste functionality
-        tempPasteData = bytes;
+        SerializableCellGrid saveGrid = new SerializableCellGrid(grid);
+        byte[] bytes = serializeCellGrid(saveGrid);
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(SaveEntry.COLUMN_SAVE_NAME, "DefaultName");
         values.put(SaveEntry.COLUMN_SAVE_DATA, bytes);
 
-        long rowid = db.insert(SaveEntry.TABLE_NAME, null, values);
+        long rowId = db.insert(SaveEntry.TABLE_NAME, null, values);
+        Pair<Long, BitmapDataObject> preview = new Pair<>(rowId, saveGrid.mPreviewBitmap);
+        savePreviews.add(preview);
 
-        if(rowid == -1) {
+        if(rowId == -1) {
             return false;
         }
         else return true;
     }
 
     //Allows
-    public SerializableCellGrid requestGrids(String name){
+    public SerializableCellGrid requestGrid(int id){
         // Execute SQL to retrieve thing with proper name
         // the new byte array will be replaced by actual data once this is working
 
-        // Temporarily commented to test paste functionality
-        // SQLiteDatabase db = this.getReadableDatabase();
-        //String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME + " WHERE " +
-        //                       SaveEntry.COLUMN_SAVE_NAME + "=" + name;
-        // Cursor result = db.rawQuery(requestString, null);
-        // result.moveToFirst();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME + " WHERE id =" + id;
+        Cursor result = db.rawQuery(requestString, null);
+        result.moveToFirst();
 
-        // WILL BE DELETED. Use this to test paste functionality
-        byte[] resultArray = tempPasteData;
         // This will be the actual one to use once DB is up and running
-        // byte[] resultArray = result.getBlob(2);
-
+        byte[] resultArray = result.getBlob(1);
 
         SerializableCellGrid serializableCellGrid = deserializeCellGrid(resultArray);
 
@@ -107,20 +100,38 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     }
 
     //Returns the list of all the names of the saves.
-    public ArrayList<String> getSaveNames(){
-        SQLiteDatabase db = this.getReadableDatabase();
-        String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME;
+    public ArrayList<Pair<Long, BitmapDataObject>> getPreviewImages(){
+        return savePreviews;
+    }
 
-        Cursor result = db.rawQuery(requestString, null);
-        ArrayList<String> names = new ArrayList<>();
+    //Clears a specific save from the database
+    public boolean clearSave(int id){
+        SQLiteDatabase db = this.getWritableDatabase();
 
-        if(result.moveToFirst()){
-            do{
-                names.add(result.getString(1));
-            }while(result.moveToNext());
+        String deleteString = "DELETE FROM " + SaveEntry.TABLE_NAME + " WHERE id = " + id + ";";
+
+        try{
+            db.execSQL(deleteString);
+        }catch (Exception e){
+            return false;
         }
 
-        return names;
+        return true;
+    }
+
+    //Clears all saves from the database
+    public boolean clearAllSaves(){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String sqlString = "DELETE FROM " + SaveEntry.TABLE_NAME + ";";
+
+        try {
+            db.execSQL(sqlString);
+        }catch (Exception e){
+            return false;
+        }
+
+        return true;
     }
 
     // Allows us the ability to convert the entire grid and stats to a bytestream for saving to sql
