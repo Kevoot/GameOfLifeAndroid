@@ -11,7 +11,7 @@ import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.pasteGrid;
-import mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mDatabaseHelper;
+import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mDatabaseHelper;
 
 /**
  * Created by George Le on 11/21/2017.
@@ -43,7 +43,7 @@ public class BitmapAdapter extends ArrayAdapter<Pair<Long, BitmapDataObject>> {
         listItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SerializableCellGrid serializableCellGrid = requestGrid(imageView.id);
+                SerializableCellGrid serializableCellGrid = mDatabaseHelper.requestGrid(imageView.id);
                 pasteGrid = serializableCellGrid;
             }
         });
