@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private static ImageButton mSaveAllButton;
     public static SerializableCellGrid pasteGrid;
 
-    public DatabaseHelper mDatabaseHelper;
+    public static DatabaseHelper mDatabaseHelper;
 
     // Indicates whether painting currently or not
     public static boolean paintingFlag;
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Temporary for testing paste functionality
-                SerializableCellGrid pasteGrid = mDatabaseHelper.requestGrid(0);
+                SerializableCellGrid pasteGrid = mDatabaseHelper.requestGrid(Long.parseLong("0"));
                 //
 
                 if(!selectingFlag && !pastingFlag) {

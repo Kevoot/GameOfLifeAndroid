@@ -61,6 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     //Save function for saving an amount of the grid
     public boolean saveGrid(boolean[][] grid) {
+        if(savePreviews == null) savePreviews = new ArrayList<>();
         // Using this class ensures all values are in valid range
         SerializableCellGrid saveGrid = new SerializableCellGrid(grid);
         byte[] bytes = serializeCellGrid(saveGrid);
@@ -80,7 +81,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     }
 
     //Allows
-    public SerializableCellGrid requestGrid(int id){
+    public SerializableCellGrid requestGrid(Long id){
         // Execute SQL to retrieve thing with proper name
         // the new byte array will be replaced by actual data once this is working
 
