@@ -256,11 +256,13 @@ public class MainActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.save_mgmt:
-                mCellGridView.pause();
-                // TODO: (Alex & George): bring up save management fragment for deleting
-                // previously saved selections & full grids
-                // After completion, resume
-                mCellGridView.resume();
+                if (mCellGridView.initFlag) {
+                    mCellGridView.pause();
+                    // TODO: (Alex & George): bring up save management fragment for deleting
+                    // previously saved selections & full grids
+                    // After completion, resume
+                    mCellGridView.resume();
+                }
                 return true;
             case R.id.change_speed:
                 if (mCellGridView.initFlag) {
