@@ -39,6 +39,10 @@ public class MainActivity extends AppCompatActivity {
     public static boolean selectingFlag;
     public static boolean pastingFlag;
 
+    public SerializableCellGrid mPasteGrid;
+
+    public static long selectedGrid = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -174,22 +178,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Temporary for testing paste functionality
-                SerializableCellGrid pasteGrid = mDatabaseHelper.requestGrid(Long.parseLong("0"));
-                //
 
                 if(!selectingFlag && !pastingFlag) {
                     pastingFlag = true;
                     mCellGridView.pause();
                     // TODO: Begin db fragment
+                    // In db fragment, set selectedGrid to the id of the one tapped by the user
+                    mPasteGrid = mDatabaseHelper.requestGrid(selectedGrid);
 
                     // WILL BE DELETED, use for testing paste functions.
-                    mCellGridView.setPreviewBitmap((pasteGrid.mPreviewBitmap.currentImage));
+                    mCellGridView.setPreviewBitmap((mPasteGrid.mPreviewBitmap.currentImage));
                     //
 
                     mCellGridView.setOnTouchListener(mCellGridView.mTouchPasteHandler);
                     SetState(false, false);
                 } else if (!selectingFlag && pastingFlag) {
-                    mCellGridView.transferCellsFromPaste(pasteGrid.getCellGrid(),
+                    mCellGridView.transferCellsFromPaste(mPasteGrid.getCellGrid(),
                             ((mCellGridView.x2 / xAdjust) - 1),
                             ((mCellGridView.y2 / yAdjust) - 1));
                     mCellGridView.DrawGrid();

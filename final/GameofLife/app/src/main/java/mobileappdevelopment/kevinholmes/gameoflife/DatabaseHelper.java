@@ -22,6 +22,9 @@ import java.util.List;
 
 import mobileappdevelopment.kevinholmes.gameoflife.SaveContract.SaveEntry;
 
+import static android.os.Debug.waitForDebugger;
+import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedGrid;
+
 /**
  * Created by Alex on 11/9/2017.
  */
@@ -45,6 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db){
+        waitForDebugger();
         String SQL_CREATE_SAVE_TABLE = "CREATE TABLE " + SaveEntry.TABLE_NAME + " ("
                 + SaveEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + SaveEntry.COLUMN_SAVE_DATA + " BLOB NOT NULL); ";
@@ -70,14 +74,25 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         ContentValues values = new ContentValues();
         values.put(SaveEntry.COLUMN_SAVE_DATA, bytes);
 
-        long rowId = db.insert(SaveEntry.TABLE_NAME, null, values);
+        long rowId = -1;
+
+        try{
+            rowId = db.insertOrThrow(SaveEntry.TABLE_NAME, null, values);
+        }
+        catch(Exception e) {
+            Log.d(" ", e.toString());
+        }
         Pair<Long, BitmapDataObject> preview = new Pair<>(rowId, saveGrid.mPreviewBitmap);
         savePreviews.add(preview);
 
         if(rowId == -1) {
             return false;
         }
-        else return true;
+        else {
+            // TODO: Remove this, present just for testing, still need paste fragment.
+            selectedGrid = rowId;
+            return true;
+        }
     }
 
     //Allows
@@ -85,19 +100,29 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         // Execute SQL to retrieve thing with proper name
         // the new byte array will be replaced by actual data once this is working
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME + " WHERE id =" + id;
-        Cursor result = db.rawQuery(requestString, null);
-        result.moveToFirst();
+        SerializableCellGrid serializableCellGrid;
 
-        // This will be the actual one to use once DB is up and running
-        byte[] resultArray = result.getBlob(1);
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            // Cursor result = db.rawQuery("SELECT * FROM " + SaveEntry.TABLE_NAME, null);
+            String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME + " WHERE _id =" + id;
+            Cursor result = db.rawQuery(requestString, null);
+            result.moveToFirst();
 
-        SerializableCellGrid serializableCellGrid = deserializeCellGrid(resultArray);
+            // This will be the actual one to use once DB is up and running
+            byte[] resultArray = result.getBlob(1);
 
-        assert serializableCellGrid != null;
+            serializableCellGrid = deserializeCellGrid(resultArray);
 
-        return serializableCellGrid;
+            assert serializableCellGrid != null;
+
+            return serializableCellGrid;
+        }
+        catch(Exception e ) {
+            Log.d(" ", e.toString());
+        }
+
+        return null;
     }
 
     //Returns the list of all the names of the saves.
