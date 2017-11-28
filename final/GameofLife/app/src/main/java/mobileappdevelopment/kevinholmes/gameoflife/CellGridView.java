@@ -277,10 +277,7 @@ public class CellGridView extends View {
                         }
                         if (x2 < 0) {x2 = 0;}
                         if (y2 < 0) {y2 = 0;}
-
-                        if (!selected()){
-                            resume();
-                        }
+                        
 
                         v.performClick();
                         break;
