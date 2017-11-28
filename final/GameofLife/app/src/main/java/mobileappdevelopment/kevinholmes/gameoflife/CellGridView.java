@@ -332,6 +332,7 @@ public class CellGridView extends View {
         // Begin simulation
         mHandler.postDelayed(mRunnable, 1000);
         initFlag = true;
+        MainActivity.initialized = true;
     }
 
     public void initBlankGrid() {
