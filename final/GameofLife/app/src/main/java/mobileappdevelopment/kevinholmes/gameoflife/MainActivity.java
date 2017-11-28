@@ -1,6 +1,7 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -183,15 +184,14 @@ public class MainActivity extends AppCompatActivity {
                     pastingFlag = true;
                     mCellGridView.pause();
                     // TODO: Begin db fragment
-                    // In db fragment, set selectedGrid to the id of the one tapped by the user
-                    mPasteGrid = mDatabaseHelper.requestGrid(selectedGrid);
+                            // sets the selected paste section
+                            showPasteFragment();
+                            // In db fragment, set selectedGrid to the id of the one tapped by the user
+                            mPasteGrid = mDatabaseHelper.requestGrid(selectedGrid);
 
-                    // WILL BE DELETED, use for testing paste functions.
-                    mCellGridView.setPreviewBitmap((mPasteGrid.mPreviewBitmap.currentImage));
-                    //
-
-                    mCellGridView.setOnTouchListener(mCellGridView.mTouchPasteHandler);
-                    SetState(false, false);
+                            mCellGridView.setPreviewBitmap((mPasteGrid.mPreviewBitmap.currentImage));
+                            mCellGridView.setOnTouchListener(mCellGridView.mTouchPasteHandler);
+                            SetState(false, false);
                 } else if (!selectingFlag && pastingFlag) {
                     mCellGridView.transferCellsFromPaste(mPasteGrid.getCellGrid(),
                             ((mCellGridView.x2 / xAdjust) - 1),
@@ -224,6 +224,11 @@ public class MainActivity extends AppCompatActivity {
 
         // create initial state of not selecting or painting
         SetState(false, false);
+    }
+
+    private void showPasteFragment() {
+        PasteFragment pf = new PasteFragment();
+        pf.show(getFragmentManager(), "pasting");
     }
 
     @Override
