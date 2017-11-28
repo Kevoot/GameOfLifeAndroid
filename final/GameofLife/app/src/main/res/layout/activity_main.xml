@@ -24,8 +24,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="58dp"
-            android:orientation="horizontal"
+            android:background="@android:color/background_dark"
             android:gravity="center"
+            android:orientation="horizontal"
             android:weightSum="1">
 
             <ImageButton
@@ -33,7 +34,9 @@
                 android:layout_width="45dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.10"
-                android:scaleType="fitXY"
+                android:background="@android:color/background_dark"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
                 app:srcCompat="@drawable/new_canvas" />
 
             <ImageButton
@@ -41,7 +44,9 @@
                 android:layout_width="45dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.10"
-                android:scaleType="fitXY"
+                android:background="@android:color/background_dark"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
                 app:srcCompat="@drawable/paint" />
 
             <ImageButton
@@ -49,39 +54,50 @@
                 android:layout_width="45dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.10"
-                android:scaleType="fitXY"
+                android:background="@android:color/background_dark"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
                 app:srcCompat="@drawable/dice" />
 
             <ImageButton
                 android:id="@+id/cutButton"
                 android:layout_width="45dp"
                 android:layout_height="match_parent"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/cut"
-                android:layout_weight="0.10" />
+                android:layout_weight="0.10"
+                android:background="@android:color/background_dark"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/cut" />
+
             <ImageButton
                 android:id="@+id/copyButton"
                 android:layout_width="45dp"
                 android:layout_height="match_parent"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/copy"
-                android:layout_weight="0.10" />
+                android:layout_weight="0.10"
+                android:background="@android:color/background_dark"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/copy" />
 
             <ImageButton
                 android:id="@+id/pasteButton"
                 android:layout_width="45dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.10"
-                android:scaleType="fitXY"
+                android:background="@android:color/background_dark"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
                 app:srcCompat="@drawable/paste" />
 
             <ImageButton
                 android:id="@+id/saveButton"
                 android:layout_width="45dp"
                 android:layout_height="match_parent"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/save"
-                android:layout_weight="0.10" />
+                android:layout_weight="0.10"
+                android:background="@android:color/background_dark"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/save" />
 
         </LinearLayout>
 

@@ -273,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static boolean SetState (boolean painting, boolean selected){
-        float off = (float)0.5;
+        float off = (float)0.1;
         float on = (float)1.0;
 
         paintingFlag = painting;
