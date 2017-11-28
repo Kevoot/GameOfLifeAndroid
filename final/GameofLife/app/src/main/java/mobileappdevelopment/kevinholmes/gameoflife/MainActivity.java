@@ -190,7 +190,16 @@ public class MainActivity extends AppCompatActivity {
                     mPasteGrid = mDatabaseHelper.requestGrid(selectedGrid);
 
                     // WILL BE DELETED, use for testing paste functions.
+                    if (mPasteGrid == null) {
+                        mCellGridView.DrawGrid();
+                        mCellGridView.resume();
+                        pastingFlag = false;
+                        mCellGridView.setOnTouchListener(mCellGridView.mTouchSelectionHandler);
+                        return;
+                    }
+
                     mCellGridView.setPreviewBitmap((mPasteGrid.mPreviewBitmap.currentImage));
+
                     //
 
                     mCellGridView.setOnTouchListener(mCellGridView.mTouchPasteHandler);
