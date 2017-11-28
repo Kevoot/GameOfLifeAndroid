@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean paintingFlag;
     public static boolean selectingFlag;
     public static boolean pastingFlag;
+    public static boolean initialized;
 
     public SerializableCellGrid mPasteGrid;
 
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
                         // else let fall through
                     }
                     mCellGridView.initBlankGrid();
+                    SetState(false, false);
                 }
             }
         });
@@ -120,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!paintingFlag && !selectingFlag) {
                     mCellGridView.pause();
                     mCellGridView.initRandomGrid();
+                    SetState(false, false);
                 }
             }
         });
@@ -129,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Pause simulation
-                if(selectingFlag) {
+                if(selectingFlag && initialized) {
                     mCellGridView.pause();
                     // TODO: Copy contents to local DB, don't delete unless save works
                     if(mDatabaseHelper.saveGrid(mCellGridView.copySelected())) {
@@ -159,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                 //         so no deletion
 
                 // Getting rid of those previous variables, just make sure there's a selection first
-                if(selectingFlag) {
+                if(selectingFlag && initialized) {
                     mCellGridView.pause();
                     // TODO: Copy the cell grid values into the local DB (Will have to scale to get
                     // TODO: correct values)
@@ -179,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // Temporary for testing paste functionality
 
-                if(!selectingFlag && !pastingFlag) {
+                if(!selectingFlag && !pastingFlag && initialized) {
                     pastingFlag = true;
                     mCellGridView.pause();
                     // TODO: Begin db fragment
@@ -192,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
 
                     mCellGridView.setOnTouchListener(mCellGridView.mTouchPasteHandler);
                     SetState(false, false);
-                } else if (!selectingFlag && pastingFlag) {
+                } else if (!selectingFlag && pastingFlag && initialized) {
                     mCellGridView.transferCellsFromPaste(mPasteGrid.getCellGrid(),
                             ((mCellGridView.x2 / xAdjust) - 1),
                             ((mCellGridView.y2 / yAdjust) - 1));
@@ -209,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         mSaveAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mCellGridView.selected()) {
+                if(mCellGridView.selected() && initialized) {
                     mCellGridView.pause();
                     // TODO: Save whole grid to DB
                     if(!mDatabaseHelper.saveGrid(
@@ -224,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
 
         // create initial state of not selecting or painting
         SetState(false, false);
+        initialized = false;
     }
 
     @Override
@@ -275,6 +279,18 @@ public class MainActivity extends AppCompatActivity {
         paintingFlag = painting;
         selectingFlag = selected;
 
+        if (!initialized){
+            mNewGridButton.setAlpha(on);
+            mPaintButton.setAlpha(on);
+            mRandomizeButton.setAlpha(on);
+            mCutButton.setAlpha(off);
+            mCopyButton.setAlpha(off);
+            mPasteButton.setAlpha(off);
+            mSaveAllButton.setAlpha(off);
+            return true;
+        }
+
+        // paint mode
         if (painting && !selected){
             mNewGridButton.setAlpha(off);
             mPaintButton.setAlpha(on);
@@ -285,23 +301,25 @@ public class MainActivity extends AppCompatActivity {
             mSaveAllButton.setAlpha(off);
             return true;
         }
+        // selection mode
         if (!painting && selected){
             mNewGridButton.setAlpha(off);
             mPaintButton.setAlpha(off);
             mRandomizeButton.setAlpha(off);
             mCutButton.setAlpha(on);
             mCopyButton.setAlpha(on);
-            mPasteButton.setAlpha(on);
-            mSaveAllButton.setAlpha(off);
+            mPasteButton.setAlpha(off);
+            mSaveAllButton.setAlpha(on);
             return true;
         }
+        // running mode
         if (!painting && !selected){
             mNewGridButton.setAlpha(on);
             mPaintButton.setAlpha(on);
             mRandomizeButton.setAlpha(on);
             mCutButton.setAlpha(off);
             mCopyButton.setAlpha(off);
-            mPasteButton.setAlpha(off);
+            mPasteButton.setAlpha(on);
             mSaveAllButton.setAlpha(on);
             return true;
         }
