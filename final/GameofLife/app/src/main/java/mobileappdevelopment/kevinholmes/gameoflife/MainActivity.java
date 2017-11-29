@@ -201,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                     mCellGridView.resume();
                     pastingFlag = false;
                     mCellGridView.setOnTouchListener(mCellGridView.mTouchSelectionHandler);
+                    SetState(false, false);
                 }
 
             }
@@ -465,10 +466,15 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
 
     @Override
     public void handleDialogClose(DialogInterface dialog) {
-        if(selectedGrid == -1) return;
+        if(selectedGrid == -1) {
+            pastingFlag = false;
+            mCellGridView.resume();
+            return;
+        }
         mPasteGrid = mDatabaseHelper.requestGrid(selectedGrid);
         mCellGridView.setPreviewBitmap((mPasteGrid.mPreviewBitmap.currentImage));
         mCellGridView.setOnTouchListener(mCellGridView.mTouchPasteHandler);
+        mCellGridView.setPreview();
         SetState(false, false);
     }
 }

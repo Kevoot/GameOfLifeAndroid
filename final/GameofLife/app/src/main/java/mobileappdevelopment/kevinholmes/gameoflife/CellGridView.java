@@ -293,6 +293,15 @@ public class CellGridView extends View {
         };
     }
 
+    public void setPreview(){
+        Bitmap tempBg = Bitmap.createBitmap(mPreviewBitmap);
+        x2 = (mViewSizeX/2)-(tempBg.getWidth()/2);
+        y2 = (mViewSizeY/2)-(tempBg.getHeight()/2);
+        tempBg = overlay(mCurrentBg, tempBg, x2, y2);
+        BitmapDrawable bd = new BitmapDrawable(tempBg);
+        setBackgroundDrawable(bd);
+    }
+
     public void transferCellsFromPaste(boolean[][] cells, int xOffset, int yOffset) {
         for(int i = 0; i < cells.length; i++) {
             for(int j = 0; j < cells[0].length; j++) {
