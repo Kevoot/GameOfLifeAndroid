@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    android:orientation="vertical">
+    <TextView
+        android:text="Saved Grids: Select one to delete"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content">
+    </TextView>
+
+    <ListView
+        android:id="@+id/database_list"
+        android:layout_width="wrap_content"
+        android:layout_height="450dp">
+    </ListView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center|bottom">
+
+        <Button
+            android:id="@+id/database_cancel"
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|bottom"
+            android:text="Cancel" />
+
+        <Button
+            android:id="@+id/database_delete_all"
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|bottom"
+            android:text="Delete All"/>
+    </LinearLayout>
+
+</LinearLayout>

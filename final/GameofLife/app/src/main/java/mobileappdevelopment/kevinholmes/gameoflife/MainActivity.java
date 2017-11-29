@@ -1,5 +1,6 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
+import android.app.FragmentManager;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v4.util.Pair;
@@ -75,6 +76,22 @@ public class MainActivity extends AppCompatActivity {
                         // return true for confirm, false for cancel
                         // if(false) return;
                         // else let fall through
+                        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext())
+                                .setTitle("Discard?")
+                                .setMessage("Do you want to discard the current grid?");
+                        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                return;
+                            }
+                        });
+                        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                mCellGridView.initBlankGrid();
+                            }
+                        });
+                        builder.show();
                     }
                     mCellGridView.initBlankGrid();
                 }
@@ -252,6 +269,10 @@ public class MainActivity extends AppCompatActivity {
                 // TODO: (Alex & George): bring up save management fragment for deleting
                 // previously saved selections & full grids
                 // After completion, resume
+                showDatabaseManagementFragment();
+
+                mDatabaseHelper.clearSave(selectedGrid);
+
                 mCellGridView.resume();
                 return true;
             case R.id.change_speed:
@@ -271,6 +292,11 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showDatabaseManagementFragment() {
+        DatabaseManagementFragment dmf = new DatabaseManagementFragment();
+        dmf.show(getFragmentManager(), "database");
     }
 
     public static boolean SetState (boolean painting, boolean selected){

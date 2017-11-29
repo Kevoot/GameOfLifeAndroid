@@ -32,16 +32,6 @@ public class PasteBitmapAdapter extends ArrayAdapter<Pair<Long, BitmapDataObject
 
         imageView.id = grid.first;
         imageView.setImageDrawable(new BitmapDrawable(grid.second.currentImage));
-        // imageView.set(new BitmapDrawable(grid.second.currentImage));
-        // In clickListener for each view created, Call Alex's get requestGrid()imageView.id
-        // That will give you a serializable cell grid object, set pastegrid = to it
-
-        /*listItemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                selectedGrid = imageView.id;
-            }
-        });*/
 
         return listItemView;
     }

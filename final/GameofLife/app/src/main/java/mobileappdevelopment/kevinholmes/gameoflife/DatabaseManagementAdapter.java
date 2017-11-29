@@ -1,0 +1,39 @@
+package mobileappdevelopment.kevinholmes.gameoflife;
+
+import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.v4.util.Pair;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+
+import java.util.ArrayList;
+
+/**
+ * Created by George Le on 11/29/2017.
+ */
+
+public class DatabaseManagementAdapter extends ArrayAdapter<Pair<Long, BitmapDataObject>> {
+
+    public DatabaseManagementAdapter(Context context, ArrayList<Pair<Long, BitmapDataObject>> grids){
+        super(context, 0, grids);
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup container){
+        View listItemView = convertView;
+        if(listItemView == null) {
+            listItemView = LayoutInflater.from(getContext()).inflate(R.layout.paste_list_item, container, false);
+        }
+
+        final GridItemDisplay imageView = (GridItemDisplay) listItemView.findViewById(R.id.paste_image);
+
+        Pair<Long, BitmapDataObject> grid = getItem(position);
+
+        imageView.id = grid.first;
+        imageView.setImageDrawable(new BitmapDrawable(grid.second.currentImage));
+
+        return listItemView;
+    }
+}

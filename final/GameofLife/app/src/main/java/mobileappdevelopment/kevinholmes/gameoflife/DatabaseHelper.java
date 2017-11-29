@@ -131,7 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     }
 
     //Clears a specific save from the database
-    public boolean clearSave(int id){
+    public boolean clearSave(Long id){
         SQLiteDatabase db = this.getWritableDatabase();
 
         String deleteString = "DELETE FROM " + SaveEntry.TABLE_NAME + " WHERE id = " + id + ";";
