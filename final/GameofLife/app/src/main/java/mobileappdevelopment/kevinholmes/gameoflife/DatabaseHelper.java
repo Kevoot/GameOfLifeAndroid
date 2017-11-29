@@ -23,6 +23,8 @@ import java.util.List;
 import mobileappdevelopment.kevinholmes.gameoflife.SaveContract.SaveEntry;
 
 import static android.os.Debug.waitForDebugger;
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.xAdjust;
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.yAdjust;
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedGrid;
 
 /**
@@ -40,7 +42,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     private static final int DATABASE_VERSION = 1;
 
-    private static ArrayList<Pair<Long, BitmapDataObject>> savePreviews;
+    private static ArrayList<SerializableCellGrid> savePreviews;
 
     public DatabaseHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -82,8 +84,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         catch(Exception e) {
             Log.d(" ", e.toString());
         }
-        Pair<Long, BitmapDataObject> preview = new Pair<>(rowId, saveGrid.mPreviewBitmap);
-        savePreviews.add(preview);
+        saveGrid.id = rowId;
+        savePreviews.add(saveGrid);
 
         if(rowId == -1) {
             return false;
@@ -114,6 +116,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
             serializableCellGrid = deserializeCellGrid(resultArray);
 
+            serializableCellGrid.id = id;
+
             assert serializableCellGrid != null;
 
             return serializableCellGrid;
@@ -126,7 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     }
 
     //Returns the list of all the names of the saves.
-    public ArrayList<Pair<Long, BitmapDataObject>> getPreviewImages(){
+    public ArrayList<SerializableCellGrid> getPreviewImages(){
         return savePreviews;
     }
 

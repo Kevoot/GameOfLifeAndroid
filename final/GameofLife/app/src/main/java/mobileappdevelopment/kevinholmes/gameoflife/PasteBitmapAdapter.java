@@ -13,9 +13,9 @@ import java.util.ArrayList;
 
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedGrid;
 
-public class PasteBitmapAdapter extends ArrayAdapter<Pair<Long, BitmapDataObject>> {
+public class PasteBitmapAdapter extends ArrayAdapter<SerializableCellGrid> {
 
-    public PasteBitmapAdapter(Context context, ArrayList<Pair<Long, BitmapDataObject>> grids){
+    public PasteBitmapAdapter(Context context, ArrayList<SerializableCellGrid> grids){
         super(context, 0, grids);
     }
 
@@ -28,10 +28,10 @@ public class PasteBitmapAdapter extends ArrayAdapter<Pair<Long, BitmapDataObject
 
         final GridItemDisplay imageView = (GridItemDisplay) listItemView.findViewById(R.id.paste_image);
 
-        Pair<Long, BitmapDataObject> grid = getItem(position);
+        SerializableCellGrid grid = getItem(position);
 
-        imageView.id = grid.first;
-        imageView.setImageDrawable(new BitmapDrawable(grid.second.currentImage));
+        imageView.id = grid.id;
+        imageView.setImageDrawable(new BitmapDrawable(grid.mPreviewBitmap.currentImage));
         // imageView.set(new BitmapDrawable(grid.second.currentImage));
         // In clickListener for each view created, Call Alex's get requestGrid()imageView.id
         // That will give you a serializable cell grid object, set pastegrid = to it

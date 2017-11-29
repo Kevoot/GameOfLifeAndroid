@@ -1,8 +1,10 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
@@ -15,10 +17,6 @@ import android.widget.ListView;
 import static android.os.Debug.waitForDebugger;
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mDatabaseHelper;
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedGrid;
-
-/**
- * Created by George Le on 11/14/2017.
- */
 
 public class PasteFragment extends DialogFragment{
 
@@ -50,7 +48,7 @@ public class PasteFragment extends DialogFragment{
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Object o =listView.getItemAtPosition(i);
-                selectedGrid = ((Pair<Long, int[][]>)o).first;
+                selectedGrid = ((SerializableCellGrid)o).id;
                 dismiss();
             }
         });
@@ -60,6 +58,7 @@ public class PasteFragment extends DialogFragment{
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // return to previous activity
+                selectedGrid = -1;
                 dismiss();
             }
         });
@@ -67,5 +66,12 @@ public class PasteFragment extends DialogFragment{
         builder.setView(view);
 
         return builder.create();
+    }
+
+    public void onDismiss(DialogInterface dialog)
+    {
+        Activity activity = getActivity();
+        if(activity instanceof PasteCloseListener)
+            ((PasteCloseListener)activity).handleDialogClose(dialog);
     }
 }

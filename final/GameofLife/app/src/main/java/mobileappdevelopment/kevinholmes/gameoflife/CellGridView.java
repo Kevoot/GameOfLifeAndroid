@@ -246,6 +246,7 @@ public class CellGridView extends View {
                 if(mPreviewBitmap == null) throw new Error("No Preview Bitmap found!");
                 int x = 0;
                 int y = 0;
+
                 Bitmap tempBg = Bitmap.createBitmap(mPreviewBitmap);
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
@@ -278,9 +279,6 @@ public class CellGridView extends View {
                         if (x2 < 0) {x2 = 0;}
                         if (y2 < 0) {y2 = 0;}
 
-                        if (!selected()){
-                            resume();
-                        }
 
                         v.performClick();
                         break;
@@ -332,6 +330,7 @@ public class CellGridView extends View {
         // Begin simulation
         mHandler.postDelayed(mRunnable, 1000);
         initFlag = true;
+        MainActivity.initialized = true;
     }
 
     public void initBlankGrid() {
@@ -359,6 +358,7 @@ public class CellGridView extends View {
         // Begin simulation
         mHandler.postDelayed(mRunnable, 1000);
         initFlag = true;
+        MainActivity.initialized = true;
     }
 
     public void DrawGrid() {

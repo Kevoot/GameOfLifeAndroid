@@ -28,10 +28,10 @@ public class DatabaseFragment extends ListFragment {
             view = LayoutInflater.from(getContext()).inflate(R.layout.db_fragment, container, false);
         }
 
-        BitmapAdapter adapter = new BitmapAdapter(this.getContext(), mDatabaseHelper.getPreviewImages());
+        // BitmapAdapter adapter = new BitmapAdapter(this.getContext(), mDatabaseHelper.getPreviewImages());
 
         ListView listView = (ListView) view.findViewById(R.id.list);
-        listView.setAdapter(adapter);
+        // listView.setAdapter(adapter);
 
         final Button button = view.findViewById(R.id.Cancel);
         button.setOnClickListener(new View.OnClickListener() {

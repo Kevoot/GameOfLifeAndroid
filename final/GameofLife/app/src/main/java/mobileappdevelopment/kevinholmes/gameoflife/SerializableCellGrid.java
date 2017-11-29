@@ -29,8 +29,12 @@ public class SerializableCellGrid implements Serializable {
     private int mNumAliveCells;
     // internal grid
     private boolean[][] mCellGrid;
+    // Created while xAdjust was these values
+    public int mCreatedXAdjust, mCreatedYAdjust;
     // Preview bitmap for fragments
     BitmapDataObject mPreviewBitmap;
+
+    public long id;
 
     public SerializableCellGrid() {
         mCreationDateTime = DateFormat.getDateTimeInstance().format(new Date());
@@ -46,6 +50,8 @@ public class SerializableCellGrid implements Serializable {
             mCreationDateTime = DateFormat.getDateTimeInstance().format(new Date());
             mWidth = cellGrid.length;
             mHeight = cellGrid[0].length;
+            mCreatedXAdjust = xAdjust;
+            mCreatedYAdjust = yAdjust;
             mNumAliveCells = 0;
 
             for (boolean[] aCellGrid : cellGrid) {

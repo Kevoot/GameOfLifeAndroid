@@ -19,10 +19,10 @@ import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedG
  * Created by George Le on 11/21/2017.
  */
 
-public class BitmapAdapter extends ArrayAdapter<Pair<Long, BitmapDataObject>> {
+public class BitmapAdapter extends ArrayAdapter<Pair<Pair<Long, BitmapDataObject>, Pair<Integer, Integer>>> {
 
-    public BitmapAdapter(Context context, ArrayList<Pair<Long, BitmapDataObject>> grids){
-        super(context, 0, grids);
+    public BitmapAdapter(Context context, ArrayList<Pair<Pair<Long, BitmapDataObject>, Pair<Integer, Integer>>> data){
+        super(context, 0, data);
     }
 
     @Override
@@ -34,10 +34,10 @@ public class BitmapAdapter extends ArrayAdapter<Pair<Long, BitmapDataObject>> {
 
         final GridItemDisplay imageView = (GridItemDisplay) listItemView.findViewById(R.id.image);
 
-        Pair<Long, BitmapDataObject> grid = getItem(position);
+        Pair<Pair<Long, BitmapDataObject>, Pair<Integer, Integer>> grid = getItem(position);
 
-        imageView.id = grid.first;
-        imageView.setImageDrawable(new BitmapDrawable(grid.second.currentImage));
+        imageView.id = grid.first.first;
+        imageView.setImageDrawable(new BitmapDrawable(grid.first.second.currentImage));
         // imageView.set(new BitmapDrawable(grid.second.currentImage));
         // In clickListener for each view created, Call Alex's get requestGrid()imageView.id
         // That will give you a serializable cell grid object, set pastegrid = to it
