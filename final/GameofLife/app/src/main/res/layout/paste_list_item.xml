@@ -12,6 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:contentDescription="TODO" />
+        android:layout_margin="2dp"
+        android:contentDescription="TODO"
+        android:padding="2dp" />
 
 </LinearLayout>
