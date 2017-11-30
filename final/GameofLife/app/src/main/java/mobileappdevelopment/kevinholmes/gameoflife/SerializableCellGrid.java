@@ -73,7 +73,7 @@ public class SerializableCellGrid implements Serializable {
                 }
             }
             mPreviewBitmap = new BitmapDataObject(bmp);
-        } else throw new Error("Invalid Cell Grid passed to Serializable Cell Constructor");
+        } else return;
     }
 
     private boolean ValidateCellGrids(@NonNull boolean[][] cellGrid) {
