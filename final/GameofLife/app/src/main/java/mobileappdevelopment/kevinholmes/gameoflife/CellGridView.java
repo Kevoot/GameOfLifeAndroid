@@ -162,9 +162,9 @@ public class CellGridView extends View {
                     paint.setStrokeWidth(10);
                     paint.setStyle(Paint.Style.STROKE);
                     canvas.drawRect(x1, y1, x2 - xAdjust, y2 - yAdjust, paint);
-                    MainActivity.SetState(false, true);
+                    MainActivity.SetState(false, true, false);
                 } else {
-                    MainActivity.SetState(false, false);
+                    MainActivity.SetState(false, false, false);
                 }
                 BitmapDrawable bd = new BitmapDrawable(tempBg);
                 setBackgroundDrawable(bd);
@@ -276,16 +276,18 @@ public class CellGridView extends View {
                         while(y2 % yAdjust != 0) {
                             y2 -= 1;
                         }
+
                         if (x2 < 0) {x2 = 0;}
                         if (y2 < 0) {y2 = 0;}
-
+                        //x2-=(tempBg.getWidth()/2);
+                        //y2-=(tempBg.getHeight()/2);
 
                         v.performClick();
                         break;
                     default:
                         break;
                 }
-                tempBg = overlay(mCurrentBg, tempBg, x2, y2);
+                tempBg = overlay(mCurrentBg, tempBg, x2-(tempBg.getWidth()/2), y2-(tempBg.getHeight()/2));
                 BitmapDrawable bd = new BitmapDrawable(tempBg);
                 setBackgroundDrawable(bd);
                 return true;
@@ -306,6 +308,8 @@ public class CellGridView extends View {
         for(int i = 0; i < cells.length; i++) {
             for(int j = 0; j < cells[0].length; j++) {
                 if(i + xOffset + 2 >= mCellGrid.length ||
+                        xOffset + i < 0 ||
+                        yOffset + j < 0 ||
                         j + yOffset + 2 >= mCellGrid[0].length) continue;
                 mCellGrid[i + xOffset + 2][j + yOffset + 2] = cells[i][j];
             }
