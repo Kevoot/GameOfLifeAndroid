@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         mNewGridButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!paintingFlag && !selectingFlag && !pastingFlag) {
+                if (!paintingFlag && !selectingFlag) {
                     if (mCellGridView.initFlag) {
                         // TODO: (George): confirm dialog to discard current grid (check to make sure)
                         // return true for confirm, false for cancel
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                         // else let fall through
                     }
                     mCellGridView.initBlankGrid();
-                    SetState(false, false, false);
+                    SetState(false, false);
                 }
             }
         });
@@ -90,9 +90,9 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         mPaintButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!paintingFlag && !selectingFlag && !pastingFlag) {
+                if(!paintingFlag && !selectingFlag) {
                     // Set state to disable buttons
-                    SetState(true, false, false);
+                    SetState(true, false);
                     // Pause the simulation to allow painting to not be interrupted
                     mCellGridView.pause();
                     // Check to make sure we have a canvas to draw on
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                     mCellGridView.setOnTouchListener(mCellGridView.mTouchPaintHandler);
                 } else if (paintingFlag) {
                     // Set state back to normal because were done painting
-                    SetState(false, false, false);
+                    SetState(false, false);
                     // Add the painted cells to the current simulation
                     for(int i=0; i<mCellGridView.mPaintGrid.length; i++) {
                         for(int j = 0; j < mCellGridView.mPaintGrid.length; j++) {
@@ -123,10 +123,10 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         mRandomizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!paintingFlag && !selectingFlag && !pastingFlag) {
+                if (!paintingFlag && !selectingFlag) {
                     mCellGridView.pause();
                     mCellGridView.initRandomGrid();
-                    SetState(false, false, false);
+                    SetState(false, false);
                 }
             }
         });
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                     mCellGridView.deselect();
                     mCellGridView.DrawGrid();
                     mCellGridView.resume();
-                    SetState(false, false, false);
+                    SetState(false, false);
                 }
             }
         });
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                     }
                     mCellGridView.DrawGrid();
                     mCellGridView.resume();
-                    SetState(false, false, false);
+                    SetState(false, false);
                 }
             }
         });
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
             public void onClick(View view) {
                 // Temporary for testing paste functionality
 
-                if(!selectingFlag && !pastingFlag && initialized && !paintingFlag) {
+                if(!selectingFlag && !pastingFlag && initialized) {
                     pastingFlag = true;
                     mCellGridView.pause();
                     // TODO: Begin db fragment
@@ -194,15 +194,14 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                             showPasteFragment();
                             // In db fragment, set selectedGrid to the id of the one tapped by the user
                 } else if (!selectingFlag && pastingFlag && initialized) {
-                    boolean[][] cells = mPasteGrid.getCellGrid();
-                    mCellGridView.transferCellsFromPaste(cells,
-                            ((mCellGridView.x2 / xAdjust) - 1 - (cells.length/2)),/////////
-                            ((mCellGridView.y2 / yAdjust) - 1 - (cells[0].length/2)));/////////
+                    mCellGridView.transferCellsFromPaste(mPasteGrid.getCellGrid(),
+                            ((mCellGridView.x2 / xAdjust) - 1),
+                            ((mCellGridView.y2 / yAdjust) - 1));
                     mCellGridView.DrawGrid();
                     mCellGridView.resume();
                     pastingFlag = false;
                     mCellGridView.setOnTouchListener(mCellGridView.mTouchSelectionHandler);
-                    SetState(false, false ,false);
+                    SetState(false, false);
                 }
 
             }
@@ -212,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         mSaveAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!paintingFlag && !selectingFlag && initialized && !pastingFlag) {
+                if(mCellGridView.selected() && initialized) {
                     mCellGridView.pause();
                     // TODO: Save whole grid to DB
                     if(!mDatabaseHelper.saveGrid(
@@ -220,13 +219,13 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                         throw new Error("Could not save grid to local database!");
                     }
                     mCellGridView.resume();
-                    SetState(false, false, false);
+                    SetState(false, false);
                 }
             }
         });
 
-        // create initial state of not selecting or painting or pasting
-        SetState(false, false, false);
+        // create initial state of not selecting or painting
+        SetState(false, false);
         initialized = false;
     }
 
@@ -279,13 +278,12 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         }
     }
 
-    public static boolean SetState (boolean painting, boolean selected, boolean pasting){
+    public static boolean SetState (boolean painting, boolean selected){
         float off = (float)0.1;
         float on = (float)1.0;
 
         paintingFlag = painting;
         selectingFlag = selected;
-        pastingFlag = pasting;
 
         if (!initialized){
             mNewGridButton.setAlpha(on);
@@ -299,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         }
 
         // paint mode
-        if (painting && !selected && !pasting){
+        if (painting && !selected){
             mNewGridButton.setAlpha(off);
             mPaintButton.setAlpha(on);
             mRandomizeButton.setAlpha(off);
@@ -310,31 +308,18 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
             return true;
         }
         // selection mode
-        if (!painting && selected && !pasting){
+        if (!painting && selected){
             mNewGridButton.setAlpha(off);
             mPaintButton.setAlpha(off);
             mRandomizeButton.setAlpha(off);
             mCutButton.setAlpha(on);
             mCopyButton.setAlpha(on);
             mPasteButton.setAlpha(off);
-            mSaveAllButton.setAlpha(off);
+            mSaveAllButton.setAlpha(on);
             return true;
         }
-
-        // pasting mode
-        if (!painting && !selected && pasting){
-            mNewGridButton.setAlpha(off);
-            mPaintButton.setAlpha(off);
-            mRandomizeButton.setAlpha(off);
-            mCutButton.setAlpha(off);
-            mCopyButton.setAlpha(off);
-            mPasteButton.setAlpha(on);
-            mSaveAllButton.setAlpha(off);
-            return true;
-        }
-
         // running mode
-        if (!painting && !selected && !pasting){
+        if (!painting && !selected){
             mNewGridButton.setAlpha(on);
             mPaintButton.setAlpha(on);
             mRandomizeButton.setAlpha(on);
@@ -490,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         mCellGridView.setPreviewBitmap((mPasteGrid.mPreviewBitmap.currentImage));
         mCellGridView.setOnTouchListener(mCellGridView.mTouchPasteHandler);
         mCellGridView.setPreview();
-        SetState(false, false, true);
+        SetState(false, false);
     }
 }
 
