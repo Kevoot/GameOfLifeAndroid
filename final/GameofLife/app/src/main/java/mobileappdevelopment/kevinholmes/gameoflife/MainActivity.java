@@ -21,7 +21,7 @@ import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.mCellRadi
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.xAdjust;
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.yAdjust;
 
-public class MainActivity extends AppCompatActivity implements PasteCloseListener {
+public class MainActivity extends AppCompatActivity implements PasteCloseListener, DatabaseManagementListener {
     private CellGridView mCellGridView;
 
     private static ImageButton mNewGridButton;
@@ -79,8 +79,23 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                         // return true for confirm, false for cancel
                         // if(false) return;
                         // else let fall through
+                        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext())
+                                .setTitle("Discard?")
+                                .setMessage("Do you want to discard the current grid?");
+                        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                return;
+                            }
+                        });
+                        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                mCellGridView.initBlankGrid();
+                            }
+                        });
+                        builder.show();
                     }
-                    mCellGridView.initBlankGrid();
                     SetState(false, false, false);
                 }
             }
@@ -257,6 +272,9 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                     // TODO: (Alex & George): bring up save management fragment for deleting
                     // previously saved selections & full grids
                     // After completion, resume
+                    DatabaseFragment dbf = new DatabaseFragment();
+                    dbf.show(getFragmentManager(), "database managing");
+
                     mCellGridView.resume();
                 }
                 return true;
@@ -476,7 +494,6 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
 
         popDialog.create();
         popDialog.show();
-
     }
 
     @Override
@@ -491,6 +508,14 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         mCellGridView.setOnTouchListener(mCellGridView.mTouchPasteHandler);
         mCellGridView.setPreview();
         SetState(false, false, true);
+    }
+
+    @Override
+    public void dml_handleDialogClose(DialogInterface dialogInterface) {
+        if(selectedGrid == -1){
+            return;
+        }
+        mDatabaseHelper.clearSave(selectedGrid);
     }
 }
 
