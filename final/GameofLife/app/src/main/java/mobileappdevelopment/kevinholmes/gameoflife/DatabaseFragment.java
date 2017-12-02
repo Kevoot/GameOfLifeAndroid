@@ -29,7 +29,7 @@ public class DatabaseFragment extends DialogFragment {
 
         final View view = factory.inflate(R.layout.db_fragment, null);
 
-        DatabaseManagementAdapter adapter = new DatabaseManagementAdapter(this.getContext(), mDatabaseHelper.getPreviewImages());
+        final DatabaseManagementAdapter adapter = new DatabaseManagementAdapter(this.getContext(), mDatabaseHelper.getPreviewImages());
 
         final ListView listView = (ListView) view.findViewById(R.id.database_list);
         listView.setAdapter(adapter);
@@ -38,11 +38,11 @@ public class DatabaseFragment extends DialogFragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Object o =listView.getItemAtPosition(i);
-                selectedGrid = ((Pair<Long, int[][]>)o).first;
+                selectedGrid = ((SerializableCellGrid)o).id;
+                adapter.remove((SerializableCellGrid)o);
                 dismiss();
             }
         });
-
 
         final Button button = view.findViewById(R.id.database_cancel);
         button.setOnClickListener(new View.OnClickListener() {
@@ -58,6 +58,7 @@ public class DatabaseFragment extends DialogFragment {
             public void onClick(View v){
                 mDatabaseHelper.clearAllSaves();
                 selectedGrid = -1;
+                adapter.clear();
                 dismiss();
             }
         });
