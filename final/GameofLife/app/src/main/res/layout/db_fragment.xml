@@ -6,36 +6,33 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
     android:orientation="vertical">
-    <TextView
-        android:text="Saved Grids: Select one to delete"
+    <Button
+        android:id="@+id/database_cancel"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content">
-    </TextView>
+        android:layout_gravity="center_vertical|bottom"
+        android:text="Cancel" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="Saved Grids:"
+        android:background="@color/colorPrimary"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"></TextView>
+    <Button
+        android:id="@+id/database_delete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|bottom"
+        android:text="Delete"/>
 
     <ListView
         android:id="@+id/database_list"
         android:layout_width="wrap_content"
-        android:layout_height="450dp">
+        android:layout_height="450dp"
+        android:divider="@android:color/holo_green_dark"
+        android:dividerHeight="2dp">
     </ListView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center|bottom">
-
-        <Button
-            android:id="@+id/database_cancel"
-            android:layout_width="145dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|bottom"
-            android:text="Cancel" />
-
-        <Button
-            android:id="@+id/database_delete_all"
-            android:layout_width="145dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|bottom"
-            android:text="Delete All"/>
-    </LinearLayout>
 
 </LinearLayout>

@@ -512,10 +512,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
 
     @Override
     public void dml_handleDialogClose(DialogInterface dialogInterface) {
-        if(selectedGrid == -1){
-            return;
-        }
-        mDatabaseHelper.clearSave(selectedGrid);
+
     }
 }
 

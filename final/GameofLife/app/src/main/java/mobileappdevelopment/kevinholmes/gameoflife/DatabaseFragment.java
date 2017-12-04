@@ -7,11 +7,15 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.app.DialogFragment;
 import android.support.v4.util.Pair;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+
+import java.util.ArrayList;
 
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mDatabaseHelper;
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedGrid;
@@ -21,6 +25,8 @@ import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedG
  */
 
 public class DatabaseFragment extends DialogFragment {
+
+    ArrayList<SerializableCellGrid> gridsToBeDeleted;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -37,10 +43,14 @@ public class DatabaseFragment extends DialogFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Object o =listView.getItemAtPosition(i);
-                selectedGrid = ((SerializableCellGrid)o).id;
-                adapter.remove((SerializableCellGrid)o);
-                dismiss();
+                if(adapter.checked == false) {
+                    gridsToBeDeleted.add(adapter.getItem(i));
+                    adapter.checked = true;
+                }
+                else if(adapter.checked == true) {
+                    gridsToBeDeleted.remove(adapter.getItem(i));
+                    adapter.checked = false;
+                }
             }
         });
 
@@ -53,12 +63,15 @@ public class DatabaseFragment extends DialogFragment {
             }
         });
 
-        final Button button_delete_all = view.findViewById(R.id.database_delete_all);
-        button_delete_all.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                mDatabaseHelper.clearAllSaves();
-                selectedGrid = -1;
-                adapter.clear();
+        final Button delete_button = view.findViewById(R.id.database_delete);
+        delete_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                for(int i = 0; i < gridsToBeDeleted.size(); ++i) {
+                    adapter.remove((SerializableCellGrid) gridsToBeDeleted.get(i));
+                    mDatabaseHelper.clearSave(gridsToBeDeleted.get(i).id);
+                }
+                gridsToBeDeleted.clear();
                 dismiss();
             }
         });
@@ -74,4 +87,6 @@ public class DatabaseFragment extends DialogFragment {
         if(activity instanceof DatabaseManagementListener)
             ((DatabaseManagementListener)activity).dml_handleDialogClose(dialog);
     }
+
+
 }
