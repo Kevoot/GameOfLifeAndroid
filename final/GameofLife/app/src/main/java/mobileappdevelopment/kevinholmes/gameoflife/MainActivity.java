@@ -83,6 +83,10 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                         });
                         builder.show();
                     }
+                    else
+                    {
+                        mCellGridView.initBlankGrid();
+                    }
                     SetState(false, false, false);
                 }
             }
@@ -105,10 +109,12 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                     // Set state back to normal because were done painting
                     SetState(false, false, false);
                     // Add the painted cells to the current simulation
-                    for(int i=0; i<mCellGridView.mPaintGrid.length; i++) {
-                        for(int j = 0; j < mCellGridView.mPaintGrid.length; j++) {
-                            if(mCellGridView.mPaintGrid[i][j]) {
-                                mCellGridView.mCellGrid[i][j] = true;
+                    if(mCellGridView.mPaintGrid != null) {
+                        for (int i = 0; i < mCellGridView.mPaintGrid.length; i++) {
+                            for (int j = 0; j < mCellGridView.mPaintGrid.length; j++) {
+                                if (mCellGridView.mPaintGrid[i][j]) {
+                                    mCellGridView.mCellGrid[i][j] = true;
+                                }
                             }
                         }
                     }
@@ -255,7 +261,6 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                 }
                 return true;
             case R.id.set_grid_size:
-                mCellGridView.initFlag = false;
                 mCellGridView.pause();
                 ShowSizeDialog();
                 return true;
@@ -416,6 +421,8 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
 
         popDialog.setView(layout);
 
+        final int oldAdjust = mCellGridView.xAdjust;
+
         seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
                 //Do something here with new value
@@ -434,8 +441,13 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         popDialog.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        mCellGridView.initRandomGrid();
-                        mCellGridView.resume();
+                        if(mCellGridView.initFlag) {
+                            if (xAdjust != oldAdjust) {
+                                //Re randomize grid if it changed, otherwise leave it be.
+                                mCellGridView.initRandomGrid();
+                            }
+                            mCellGridView.resume();
+                        }
                         dialog.dismiss();
                     }
 
