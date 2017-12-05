@@ -15,10 +15,6 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
-/**
- * Created by George Le on 11/29/2017.
- */
-
 public class DatabaseManagementAdapter extends ArrayAdapter<SerializableCellGrid> {
     public DatabaseManagementAdapter(Context context, ArrayList<SerializableCellGrid> grids){
         super(context, 0, grids);

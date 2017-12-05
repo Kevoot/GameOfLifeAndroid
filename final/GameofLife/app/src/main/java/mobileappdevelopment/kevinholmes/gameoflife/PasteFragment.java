@@ -6,10 +6,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -19,10 +17,6 @@ import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mDatabase
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedGrid;
 
 public class PasteFragment extends DialogFragment{
-
-    // button cancelling selecting from the database
-    private Button mButtonCancel;
-
     static PasteFragment newInstance(String title) {
         PasteFragment f = new PasteFragment();
         Bundle args = new Bundle();
@@ -43,7 +37,6 @@ public class PasteFragment extends DialogFragment{
 
         final ListView listView = (ListView) view.findViewById(R.id.paste_list);
         listView.setAdapter(adapter);
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -52,7 +45,6 @@ public class PasteFragment extends DialogFragment{
                 dismiss();
             }
         });
-
 
         final Button button = view.findViewById(R.id.paste_cancel);
         button.setOnClickListener(new View.OnClickListener() {
@@ -64,7 +56,6 @@ public class PasteFragment extends DialogFragment{
         });
 
         builder.setView(view);
-
         return builder.create();
     }
 

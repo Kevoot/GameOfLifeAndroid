@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v4.util.Pair;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -15,29 +14,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.List;
-
 
 import mobileappdevelopment.kevinholmes.gameoflife.SaveContract.SaveEntry;
 
 import static android.os.Debug.waitForDebugger;
-import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.xAdjust;
-import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.yAdjust;
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedGrid;
 
-/**
- * Created by Alex on 11/9/2017.
- */
-
-// TODO: (Alex): During SerializableCellGrid creation, use some kind of inner property here
-    // to assign each saved segment an id.
 public class DatabaseHelper extends SQLiteOpenHelper{
-
-    // WILL BE DELETED. Use this to test paste functionality
-    public static byte[] tempPasteData;
-
     private static final String DATABASE_NAME = "gameoflife.db";
 
     private static final int DATABASE_VERSION = 1;
@@ -106,12 +89,10 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
         try {
             SQLiteDatabase db = this.getReadableDatabase();
-            // Cursor result = db.rawQuery("SELECT * FROM " + SaveEntry.TABLE_NAME, null);
             String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME + " WHERE _id =" + id;
             Cursor result = db.rawQuery(requestString, null);
             result.moveToFirst();
 
-            // This will be the actual one to use once DB is up and running
             byte[] resultArray = result.getBlob(1);
 
             serializableCellGrid = deserializeCellGrid(resultArray);
@@ -192,15 +173,11 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     }
 
     // Gets bytestream from sql and deserializes (hopefully) into a SerializableCellGrid object
-    // TODO: Test this!
     public static SerializableCellGrid deserializeCellGrid(byte[] b) {
         try {
             ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(b));
             Object object = in.readObject();
             in.close();
-
-            // TODO: Validate this gives us back a valid grid, otherwise will have to iteratively
-            // TODO: populate a new boolean[][] object manually
             return (SerializableCellGrid)object;
         } catch (ClassNotFoundException cnfe) {
             Log.e("deserializeObject", "class not found error", cnfe);

@@ -3,7 +3,6 @@ package mobileappdevelopment.kevinholmes.gameoflife;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
 
@@ -14,10 +13,6 @@ import java.util.Date;
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.mCellRadius;
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.xAdjust;
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.yAdjust;
-
-/**
- * Created by Kevin on 11/12/2017.
- */
 
 public class SerializableCellGrid implements Serializable {
     private String mCreationDateTime;

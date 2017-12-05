@@ -1,8 +1,5 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
-import android.graphics.Bitmap;
-import android.os.Handler;
-import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -40,8 +37,6 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
     public static boolean selectingFlag;
     public static boolean pastingFlag;
 
-    // TODO: James, there's a static already contained in CellGridView,
-    // is this different?
     public static boolean initialized;
 
     public SerializableCellGrid mPasteGrid;
@@ -60,14 +55,6 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         paintingFlag = false;
         selectingFlag = false;
         pastingFlag = false;
-
-        // TODO: (Anyone): Add button disabling based on context
-        // I.E. if Paint is selected, all other buttons should be temporarily disabled
-        // until the paint function is completed. If a selection is occuring, paste/paint/newCanvas
-        // buttons should be disabled. Cut/copy should only be available when a selection is
-        // available
-
-
 
         mNewGridButton = (ImageButton) findViewById(R.id.newGridButton);
         mNewGridButton.setOnClickListener(new View.OnClickListener() {
@@ -171,20 +158,8 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         mCopyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Pause simulation
-                // James - Thinking that if I understand this correct, cut should just make
-                //      the cells dead in the selected area. If this is correct, should we pause
-                //      the simulation when we cut or can we just keep it running?
-                // Kevin - I think we still want to copy the values out before destroying those cells.
-                //         database should automatically get updated with a copy of that selection
-                //         every time a copy or cut operation occurs. But this is the copy function
-                //         so no deletion
-
-                // Getting rid of those previous variables, just make sure there's a selection first
                 if(selectingFlag && initialized) {
                     mCellGridView.pause();
-                    // TODO: Copy the cell grid values into the local DB (Will have to scale to get
-                    // TODO: correct values)
                     if(!mDatabaseHelper.saveGrid(mCellGridView.copySelected())) {
                         throw new Error("Could not save selection to local database!");
                     }
@@ -269,13 +244,9 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
             case R.id.save_mgmt:
                 if (mCellGridView.initFlag) {
                     mCellGridView.pause();
-                    // TODO: (Alex & George): bring up save management fragment for deleting
-                    // previously saved selections & full grids
-                    // After completion, resume
                     DatabaseFragment dbf = new DatabaseFragment();
                     dbf.show(getFragmentManager(), "database managing");
-
-
+                    // Resume occurs during callback
                 }
                 return true;
             case R.id.change_speed:
@@ -412,33 +383,20 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                 //Do something here with new value
                 mCellGridView.mDelay = 2000-progress;
             }
-
-            public void onStartTrackingTouch(SeekBar arg0) {
-                // TODO Auto-generated method stub
-
-            }
-
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
-
-            }
+            public void onStartTrackingTouch(SeekBar arg0) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-
 
         // Button OK
         popDialog.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // mCellGridView.resume();
                         dialog.dismiss();
                     }
 
                 });
-
-
         popDialog.create();
         popDialog.show();
-
     }
 
     public void ShowSizeDialog()
@@ -458,7 +416,6 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
 
         popDialog.setView(layout);
 
-
         seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
                 //Do something here with new value
@@ -468,15 +425,8 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                 mCellRadius = xAdjust / 2;
             }
 
-            public void onStartTrackingTouch(SeekBar arg0) {
-                // TODO Auto-generated method stub
-
-            }
-
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
-
-            }
+            public void onStartTrackingTouch(SeekBar arg0) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
 
@@ -490,7 +440,6 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                     }
 
                 });
-
 
         popDialog.create();
         popDialog.show();
