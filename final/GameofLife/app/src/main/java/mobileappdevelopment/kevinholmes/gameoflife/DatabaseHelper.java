@@ -153,6 +153,12 @@ public class DatabaseHelper extends SQLiteOpenHelper{
             return false;
         }
 
+        for(SerializableCellGrid item : savePreviews){
+            if(item.id == id){
+                savePreviews.remove(item);
+            }
+        }
+
         return true;
     }
 
@@ -167,6 +173,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         }catch (Exception e){
             return false;
         }
+
+        savePreviews.clear();
 
         return true;
     }

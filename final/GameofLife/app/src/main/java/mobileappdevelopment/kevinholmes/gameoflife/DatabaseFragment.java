@@ -40,6 +40,8 @@ public class DatabaseFragment extends DialogFragment {
         LayoutInflater factory = LayoutInflater.from(getActivity());
         gridsToBeDeleted = new ArrayList<>();
 
+        this.gridsToBeDeleted = new ArrayList<>();
+
         final View view = factory.inflate(R.layout.db_fragment, null);
 
         final DatabaseManagementAdapter adapter = new DatabaseManagementAdapter(this.getContext(), mDatabaseHelper.getPreviewImages());
