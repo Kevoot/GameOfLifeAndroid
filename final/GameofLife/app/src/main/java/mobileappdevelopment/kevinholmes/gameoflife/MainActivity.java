@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
             public void onClick(View view) {
                 if(!paintingFlag && !selectingFlag && initialized && !pastingFlag) {
                     mCellGridView.pause();
-                    // TODO: Save whole grid to DB
+
                     if(!mDatabaseHelper.saveGrid(
                             mCellGridView.mCellGrid)) {
                         throw new Error("Could not save grid to local database!");

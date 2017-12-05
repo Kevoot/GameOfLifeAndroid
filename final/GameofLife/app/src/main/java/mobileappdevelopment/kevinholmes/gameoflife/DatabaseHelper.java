@@ -29,6 +29,12 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     public DatabaseHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
+        if(savePreviews == null){
+            savePreviews = new ArrayList<>();
+        }
+
+        populateSavePreviews();
     }
 
     @Override
@@ -112,8 +118,15 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     //Returns the list of all the names of the saves.
     public ArrayList<SerializableCellGrid> getPreviewImages(){
+        if(savePreviews == null){savePreviews = new ArrayList<>();}
         return savePreviews;
     }
+
+    public ArrayList<SerializableCellGrid> populateSavePreviews(){
+        //Just a stub
+        return new ArrayList<>();
+    }
+
 
     //Clears a specific save from the database
     public boolean clearSave(Long id){
