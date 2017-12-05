@@ -149,8 +149,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         }catch (Exception e){
             return false;
         }
-
-        savePreviews.clear();
+        if (savePreviews != null){ savePreviews.clear(); }
 
         return true;
     }
