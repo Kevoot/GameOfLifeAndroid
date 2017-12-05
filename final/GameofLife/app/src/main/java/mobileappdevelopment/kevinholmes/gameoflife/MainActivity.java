@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                     DatabaseFragment dbf = new DatabaseFragment();
                     dbf.show(getFragmentManager(), "database managing");
 
-                    mCellGridView.resume();
+
                 }
                 return true;
             case R.id.change_speed:
@@ -512,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
 
     @Override
     public void dml_handleDialogClose(DialogInterface dialogInterface) {
-
+        mCellGridView.resume();
     }
 }
 

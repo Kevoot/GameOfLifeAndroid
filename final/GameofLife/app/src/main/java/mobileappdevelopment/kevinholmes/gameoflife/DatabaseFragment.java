@@ -4,16 +4,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.inputmethodservice.Keyboard;
 import android.os.Bundle;
 import android.app.DialogFragment;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AppCompatCallback;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
@@ -32,6 +38,7 @@ public class DatabaseFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater factory = LayoutInflater.from(getActivity());
+        gridsToBeDeleted = new ArrayList<>();
 
         final View view = factory.inflate(R.layout.db_fragment, null);
 
@@ -43,13 +50,19 @@ public class DatabaseFragment extends DialogFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if(adapter.checked == false) {
-                    gridsToBeDeleted.add(adapter.getItem(i));
-                    adapter.checked = true;
+                AppCompatCheckBox cb = (AppCompatCheckBox) ((ViewGroup)view).getChildAt(0);
+
+                if(cb.isChecked()) {
+                    if(gridsToBeDeleted.contains(adapter.getItem(i))) {
+                        gridsToBeDeleted.remove(adapter.getItem(i));
+                    }
+                    cb.setChecked(false);
                 }
-                else if(adapter.checked == true) {
-                    gridsToBeDeleted.remove(adapter.getItem(i));
-                    adapter.checked = false;
+                else {
+                    if(!gridsToBeDeleted.contains(adapter.getItem(i))) {
+                        gridsToBeDeleted.add(adapter.getItem(i));
+                    }
+                    cb.setChecked(true);
                 }
             }
         });
@@ -67,11 +80,14 @@ public class DatabaseFragment extends DialogFragment {
         delete_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for(int i = 0; i < gridsToBeDeleted.size(); ++i) {
-                    adapter.remove((SerializableCellGrid) gridsToBeDeleted.get(i));
-                    mDatabaseHelper.clearSave(gridsToBeDeleted.get(i).id);
+                // for(int i = 0; i < gridsToBeDeleted.size(); ++i) {
+                //     // adapter.remove((SerializableCellGrid) gridsToBeDeleted.get(i));
+                //     mDatabaseHelper.clearSave(gridsToBeDeleted.get(i).id);
+                // }
+                for(SerializableCellGrid s : gridsToBeDeleted) {
+                    mDatabaseHelper.clearSave(s.id);
                 }
-                gridsToBeDeleted.clear();
+                gridsToBeDeleted = null;
                 dismiss();
             }
         });

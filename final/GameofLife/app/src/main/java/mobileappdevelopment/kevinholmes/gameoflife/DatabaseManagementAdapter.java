@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,19 +20,8 @@ import java.util.ArrayList;
  */
 
 public class DatabaseManagementAdapter extends ArrayAdapter<SerializableCellGrid> {
-
-    public boolean checked = false;
-
     public DatabaseManagementAdapter(Context context, ArrayList<SerializableCellGrid> grids){
         super(context, 0, grids);
-    }
-
-    private static class RowItemDisplay{
-        public long id;
-        CheckBox box;
-        public ImageView view;
-        public RowItemDisplay() {
-        }
     }
 
     @Override
@@ -41,16 +31,18 @@ public class DatabaseManagementAdapter extends ArrayAdapter<SerializableCellGrid
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.db_management, container, false);
         }
 
-        final RowItemDisplay imageView = new RowItemDisplay();
+        final RowItemDisplay rowItem = new RowItemDisplay(listItemView.getContext());
 
-        imageView.view = listItemView.findViewById(R.id.database_image);
-        imageView.box = listItemView.findViewById(R.id.checkbox);
+        rowItem.view = listItemView.findViewById(R.id.database_image);
+        rowItem.cb = listItemView.findViewById(R.id.checkbox);
+        rowItem.cb.setChecked(false);
+        rowItem.cb.setTag(position);
 
         SerializableCellGrid grid = getItem(position);
 
-        imageView.id = grid.id;
-        imageView.view.setImageDrawable(new BitmapDrawable(grid.mPreviewBitmap.currentImage));
-        this.checked = false;
+        rowItem.id = grid.id;
+        rowItem.view.setImageDrawable(new BitmapDrawable(grid.mPreviewBitmap.currentImage));
         return listItemView;
     }
 }
+

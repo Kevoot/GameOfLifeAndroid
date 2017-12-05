@@ -138,7 +138,14 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     public boolean clearSave(Long id){
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String deleteString = "DELETE FROM " + SaveEntry.TABLE_NAME + " WHERE id = " + id + ";";
+        String deleteString = "DELETE FROM " + SaveEntry.TABLE_NAME + " WHERE _id = " + id + ";";
+        SerializableCellGrid pendingDeletion = null;
+        for(SerializableCellGrid s : savePreviews) {
+            if(s.id == id) {
+                pendingDeletion = s;
+            }
+        }
+        if(pendingDeletion != null) savePreviews.remove(pendingDeletion);
 
         try{
             db.execSQL(deleteString);
