@@ -139,6 +139,13 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = this.getWritableDatabase();
 
         String deleteString = "DELETE FROM " + SaveEntry.TABLE_NAME + " WHERE _id = " + id + ";";
+
+        try{
+            db.execSQL(deleteString);
+        }catch (Exception e){
+            return false;
+        }
+        
         SerializableCellGrid pendingDeletion = null;
         for(SerializableCellGrid s : savePreviews) {
             if(s.id == id) {
@@ -146,12 +153,6 @@ public class DatabaseHelper extends SQLiteOpenHelper{
             }
         }
         if(pendingDeletion != null) savePreviews.remove(pendingDeletion);
-
-        try{
-            db.execSQL(deleteString);
-        }catch (Exception e){
-            return false;
-        }
 
         return true;
     }
