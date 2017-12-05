@@ -4,31 +4,20 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.inputmethodservice.Keyboard;
 import android.os.Bundle;
 import android.app.DialogFragment;
-import android.support.v4.util.Pair;
-import android.support.v7.app.AppCompatCallback;
 import android.support.v7.widget.AppCompatCheckBox;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mDatabaseHelper;
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedGrid;
-
-/**
- * Created by George Le on 11/29/2017.
- */
 
 public class DatabaseFragment extends DialogFragment {
 
@@ -52,6 +41,7 @@ public class DatabaseFragment extends DialogFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //Added Kevin - should getting the individual list item, and it's cb.
                 AppCompatCheckBox cb = (AppCompatCheckBox) ((ViewGroup)view).getChildAt(0);
 
                 if(cb.isChecked()) {

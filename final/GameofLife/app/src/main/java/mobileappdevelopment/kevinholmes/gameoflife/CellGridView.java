@@ -9,7 +9,6 @@ import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,51 +16,47 @@ import android.view.View;
 import java.nio.Buffer;
 import java.util.Random;
 
-/**
- * Created by Kevin on 11/10/2017.
- */
-
 public class CellGridView extends View {
-    // Set values for initial (non-randomized) alive cells
+    //Added Kevin Set values for initial (non-randomized) alive cells
     private final Paint mAliveCellPaint;
     private final Paint mNewCellPaint;
 
-    // Flag to indicate whether or not the grid has been initialized and is now at a drawable state
+    //Added Kevin Flag to indicate whether or not the grid has been initialized and is now at a drawable state
     public boolean initFlag;
 
-    // Value for any void space (should use background setting instead of painting
+    //Added Kevin Value for any void space (should use background setting instead of painting
     // as opposed to paint each individual cell with this)
     private final Paint mDeadCellPaint;
 
-    // Only one of these should be loaded at any given time.
+    //Added Kevin Only one of these should be loaded at any given time.
     // Attach any given one of them to the mHandler
     public final OnTouchListener mTouchSelectionHandler;
     public final OnTouchListener mTouchPaintHandler;
     public final OnTouchListener mTouchPasteHandler;
 
 
-    // Raw View dimensions
+    //Added Kevin Raw View dimensions
     public int mViewSizeX, mViewSizeY;
 
-    // Adjusted grid sizes, as making the grid equivalent to screen size is far too
+    //Added Kevin Adjusted grid sizes, as making the grid equivalent to screen size is far too
     // expensive to iterate through
     public int mGridSizeX, mGridSizeY;
 
-    // Adjustment factors, must divide screen x and y size evenly
+    //Added Kevin Adjustment factors, must divide screen x and y size evenly
     public static int xAdjust, yAdjust;
 
-    // Cell radius (half an adjustment)
+    //Added Kevin Cell radius (half an adjustment)
     public static int mCellRadius;
 
-    // Actual grid containing 0 or 1's indicating dead or alive cell
+    //Added Kevin Actual grid containing 0 or 1's indicating dead or alive cell
     public boolean [][] mCellGrid;
 
     public boolean [][] mPrevCellGrid;
 
-    // Grid containing painting results
+    //Added Kevin Grid containing painting results
     public boolean [][] mPaintGrid;
 
-    // Delay in milliseconds between each simulation step
+    //Added Kevin Delay in milliseconds between each simulation step
     public int mDelay;
 
     public int x1=0;
@@ -69,10 +64,10 @@ public class CellGridView extends View {
     public int y1=0;
     public int y2=0;
 
-    // Handler for running simulation loop
+    //Added Kevin Handler for running simulation loop
     public final Handler mHandler = new Handler();
 
-    // Runnable to attach to handler
+    //Added Kevin Runnable to attach to handler
     final Runnable mRunnable = new Runnable() {
         public void run() {
             mHandler.removeCallbacks(this);
@@ -171,7 +166,7 @@ public class CellGridView extends View {
                 return true;
             }
         };
-
+        //Added Kevin - Allows finger painting on canvas
         mTouchPaintHandler = new View.OnTouchListener() {
             // Modulus operations "clip" selection box to a grid location for easy translation later on
             @Override
@@ -239,7 +234,7 @@ public class CellGridView extends View {
                 return true;
             }
         };
-
+        //Added Kevin & James - Pasting to grid
         mTouchPasteHandler = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -279,8 +274,6 @@ public class CellGridView extends View {
 
                         if (x2 < 0) {x2 = 0;}
                         if (y2 < 0) {y2 = 0;}
-                        //x2-=(tempBg.getWidth()/2);
-                        //y2-=(tempBg.getHeight()/2);
 
                         v.performClick();
                         break;
@@ -304,6 +297,7 @@ public class CellGridView extends View {
         setBackgroundDrawable(bd);
     }
 
+    //Added Kevin - Transfer the pasting grid onto active grid
     public void transferCellsFromPaste(boolean[][] cells, int xOffset, int yOffset) {
         for(int i = 0; i < cells.length; i++) {
             for(int j = 0; j < cells[0].length; j++) {
@@ -316,6 +310,7 @@ public class CellGridView extends View {
         }
     }
 
+    //Added Kevin - initialize the grid with random cells
     public void initRandomGrid() {
         mViewSizeY = this.getHeight();
         mViewSizeX = this.getWidth();
@@ -346,6 +341,7 @@ public class CellGridView extends View {
         MainActivity.initialized = true;
     }
 
+    //Added Kevin - Initialize grid for finger-painting
     public void initBlankGrid() {
         mViewSizeY = this.getHeight();
         mViewSizeX = this.getWidth();
@@ -374,6 +370,7 @@ public class CellGridView extends View {
         MainActivity.initialized = true;
     }
 
+    //Added Kevin - Force draws on background of container
     public void DrawGrid() {
         Paint paint = new Paint();
         mCurrentBg = Bitmap.createBitmap(mViewSizeX, mViewSizeY, Bitmap.Config.ARGB_8888);
@@ -415,8 +412,8 @@ public class CellGridView extends View {
         }
     }
 
+    //Added Kevin - one step in the simulation
     public void step() {
-        // Do one step in simulation
         boolean[][] future = new boolean[mGridSizeX][mGridSizeY];
 
         // Loop through every cell
@@ -458,10 +455,10 @@ public class CellGridView extends View {
         mCellGrid = future;
     }
 
+    //Added Kevin - Runnable handling
     public void pause() {
         mHandler.removeCallbacks(mRunnable);
     }
-
     public void resume() {
         mHandler.postDelayed(mRunnable, mDelay);
     }

@@ -7,9 +7,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
-/**
- * Created by Kevin on 11/16/2017.
- */
 public class BitmapDataObject implements Serializable {
 
     public Bitmap currentImage;
