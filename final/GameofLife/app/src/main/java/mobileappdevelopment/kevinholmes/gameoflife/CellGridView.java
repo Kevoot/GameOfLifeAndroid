@@ -13,8 +13,9 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.nio.Buffer;
 import java.util.Random;
+
+import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mPasteGrid;
 
 public class CellGridView extends View {
     //Added Kevin Set values for initial (non-randomized) alive cells
@@ -40,7 +41,7 @@ public class CellGridView extends View {
 
     //Added Kevin Adjusted grid sizes, as making the grid equivalent to screen size is far too
     // expensive to iterate through
-    public int mGridSizeX, mGridSizeY;
+    public static int mGridSizeX, mGridSizeY;
 
     //Added Kevin Adjustment factors, must divide screen x and y size evenly
     public static int xAdjust, yAdjust;
@@ -290,10 +291,15 @@ public class CellGridView extends View {
 
     public void setPreview(){
         Bitmap tempBg = Bitmap.createBitmap(mPreviewBitmap);
-        x2 = (mViewSizeX/2)-(tempBg.getWidth()/2);
-        y2 = (mViewSizeY/2)-(tempBg.getHeight()/2);
-        tempBg = overlay(mCurrentBg, tempBg, x2, y2);
-        BitmapDrawable bd = new BitmapDrawable(tempBg);
+        double xNewAdjust = (double)mPasteGrid.mCreatedGridSizeX / (double)mGridSizeX;
+        double yNewAdjust = (double)mPasteGrid.mCreatedGridSizeY / (double)mGridSizeY;
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(tempBg, (int)(tempBg.getWidth() * xNewAdjust), (int)(tempBg.getHeight() * yNewAdjust), false);
+        x2 = (mViewSizeX/2)-(resizedBitmap.getWidth()/2);
+        y2 = (mViewSizeY/2)-(resizedBitmap.getHeight()/2);
+        mPreviewBitmap = Bitmap.createBitmap(resizedBitmap);
+        Bitmap bg = overlay(mCurrentBg, resizedBitmap, x2, y2);
+        BitmapDrawable bd = new BitmapDrawable(bg);
+
         setBackgroundDrawable(bd);
     }
 
@@ -569,6 +575,12 @@ public class CellGridView extends View {
         Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
         Canvas canvas = new Canvas(bmOverlay);
         canvas.drawBitmap(bmp1, new Matrix(), null);
+
+        // double xNewAdjust = (double)mPasteGrid.mCreatedGridSizeX / (double)mGridSizeX;
+        // double yNewAdjust = (double)mPasteGrid.mCreatedGridSizeY / (double)mGridSizeY;
+
+        // Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp2, (int)(bmp2.getWidth() * xNewAdjust), (int)(bmp2.getHeight() * yNewAdjust), false);
+
         BitmapDrawable bd = new BitmapDrawable(bmp2);
         bd.setAlpha(50);
         canvas.drawBitmap(bd.getBitmap(), x, y, null);
