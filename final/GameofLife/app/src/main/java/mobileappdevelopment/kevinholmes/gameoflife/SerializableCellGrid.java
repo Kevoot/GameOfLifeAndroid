@@ -11,6 +11,8 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.mCellRadius;
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.mGridSizeX;
+import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.mGridSizeY;
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.xAdjust;
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.yAdjust;
 
@@ -25,7 +27,7 @@ public class SerializableCellGrid implements Serializable {
     // internal grid
     private boolean[][] mCellGrid;
     // Created while xAdjust was these values
-    public int mCreatedXAdjust, mCreatedYAdjust;
+    public int mCreatedGridSizeX, mCreatedGridSizeY;
     // Preview bitmap for fragments
     BitmapDataObject mPreviewBitmap;
 
@@ -45,8 +47,8 @@ public class SerializableCellGrid implements Serializable {
             mCreationDateTime = DateFormat.getDateTimeInstance().format(new Date());
             mWidth = cellGrid.length;
             mHeight = cellGrid[0].length;
-            mCreatedXAdjust = xAdjust;
-            mCreatedYAdjust = yAdjust;
+            mCreatedGridSizeX = mGridSizeX;
+            mCreatedGridSizeY = mGridSizeY;
             mNumAliveCells = 0;
 
             for (boolean[] aCellGrid : cellGrid) {

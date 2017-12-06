@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
 
     public static boolean initialized;
 
-    public SerializableCellGrid mPasteGrid;
+    public static SerializableCellGrid mPasteGrid;
 
     public static long selectedGrid = 0;
 
@@ -169,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
                     if(!mDatabaseHelper.saveGrid(mCellGridView.copySelected())) {
                         throw new Error("Could not save selection to local database!");
                     }
+                    mCellGridView.deselect();
                     mCellGridView.DrawGrid();
                     mCellGridView.resume();
                     SetState(false, false, false);
@@ -412,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         seek.setProgress(50-mCellGridView.xAdjust);
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        popDialog.setTitle("Please Select The Speed");
+        popDialog.setTitle("Please Select The Size");
         layout.addView(seek);
         TextView myMsg = new TextView(this);
         myMsg.setText("Larger Cells       Smaller Cells");
