@@ -122,12 +122,6 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         return savePreviews;
     }
 
-    public ArrayList<SerializableCellGrid> populateSavePreviews(){
-        //Just a stub
-        return new ArrayList<>();
-    }
-
-
     //Clears a specific save from the database
     public boolean clearSave(Long id){
         SQLiteDatabase db = this.getWritableDatabase();
@@ -200,6 +194,18 @@ public class DatabaseHelper extends SQLiteOpenHelper{
             Log.e("deserializeObject", "io error", ioe);
 
             return null;
+        }
+    }
+
+    private void populateSavePreviews(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME;
+        Cursor result = db.rawQuery(requestString, null);
+
+        while(result.moveToNext()){
+            byte[] resultArray = result.getBlob(1);
+
+            savePreviews.add(deserializeCellGrid(resultArray));
         }
     }
 
