@@ -251,10 +251,11 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
             case R.id.save_mgmt:
                 if (mCellGridView.initFlag) {
                     mCellGridView.pause();
-                    DatabaseFragment dbf = new DatabaseFragment();
-                    dbf.show(getFragmentManager(), "database managing");
-                    // Resume occurs during callback
                 }
+                DatabaseFragment dbf = new DatabaseFragment();
+                dbf.show(getFragmentManager(), "database managing");
+                // Resume occurs during callback
+
                 return true;
             case R.id.change_speed:
                 if (mCellGridView.initFlag) {
@@ -474,7 +475,9 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
 
     @Override
     public void dml_handleDialogClose(DialogInterface dialogInterface) {
-        mCellGridView.resume();
+        if (mCellGridView.initFlag) {
+            mCellGridView.resume();
+        }
     }
 }
 
