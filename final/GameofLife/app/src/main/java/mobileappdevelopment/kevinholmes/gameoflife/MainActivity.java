@@ -1,5 +1,6 @@
 package mobileappdevelopment.kevinholmes.gameoflife;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,8 +20,6 @@ import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.xAdjust;
 import static mobileappdevelopment.kevinholmes.gameoflife.CellGridView.yAdjust;
 
 public class MainActivity extends AppCompatActivity implements PasteCloseListener, DatabaseManagementListener {
-    private CellGridView mCellGridView;
-
     private static ImageButton mNewGridButton;
     private static ImageButton mPaintButton;
     private static ImageButton mRandomizeButton;
@@ -29,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
     private static ImageButton mPasteButton;
     private static ImageButton mSaveAllButton;
     public static SerializableCellGrid pasteGrid;
+    public static CellGridView mCellGridView;
 
     public static DatabaseHelper mDatabaseHelper;
 
@@ -62,10 +62,6 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
             public void onClick(View view) {
                 if (!paintingFlag && !selectingFlag && !pastingFlag) {
                     if (mCellGridView.initFlag) {
-                        // TODO: (George): confirm dialog to discard current grid (check to make sure)
-                        // return true for confirm, false for cancel
-                        // if(false) return;
-                        // else let fall through
                         AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext())
                                 .setTitle("Discard?")
                                 .setMessage("Do you want to discard the current grid?");
@@ -229,7 +225,9 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
     private boolean showPasteFragment() {
         try {
             PasteFragment pf = new PasteFragment();
-            pf.show(getFragmentManager(), "pasting");
+            int result = 0;
+            Intent i = new Intent(getApplicationContext(),PasteFragment.class);
+            startActivityForResult(i, RESULT_OK);
         } catch(Exception e) {
             return false;
         }
