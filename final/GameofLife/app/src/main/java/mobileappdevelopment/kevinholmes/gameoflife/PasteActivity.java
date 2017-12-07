@@ -21,7 +21,7 @@ import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mPasteGri
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.pastingFlag;
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.selectedGrid;
 
-public class PasteFragment extends AppCompatActivity {
+public class PasteActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

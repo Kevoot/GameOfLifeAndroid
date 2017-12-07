@@ -224,9 +224,9 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
 
     private boolean showPasteFragment() {
         try {
-            PasteFragment pf = new PasteFragment();
+            PasteActivity pf = new PasteActivity();
             int result = 0;
-            Intent i = new Intent(getApplicationContext(),PasteFragment.class);
+            Intent i = new Intent(getApplicationContext(),PasteActivity.class);
             startActivityForResult(i, RESULT_OK);
         } catch(Exception e) {
             return false;
