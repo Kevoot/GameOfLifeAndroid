@@ -33,15 +33,24 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         if(savePreviews == null){
             savePreviews = new ArrayList<>();
         }
+        SQLiteDatabase db = this.getReadableDatabase();
+        if(isTableExists())
+            populateSavePreviews();
+        else {
+            String SQL_CREATE_SAVE_TABLE = "CREATE TABLE " + SaveEntry.TABLE_NAME + " (" + SaveEntry._ID
+                    + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + SaveEntry.COLUMN_SAVE_DATA + " BLOB NOT NULL); ";
+                    db.execSQL(SQL_CREATE_SAVE_TABLE);
 
-        populateSavePreviews();
+            savePreviews = new ArrayList<>();
+        }
     }
 
     @Override
     public void onCreate(SQLiteDatabase db){
         waitForDebugger();
-        String SQL_CREATE_SAVE_TABLE = "CREATE TABLE " + SaveEntry.TABLE_NAME + " ("
-                + SaveEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+        String SQL_CREATE_SAVE_TABLE = "CREATE TABLE " + SaveEntry.TABLE_NAME + " (" + SaveEntry._ID
+                + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + SaveEntry.COLUMN_SAVE_DATA + " BLOB NOT NULL); ";
 
         db.execSQL(SQL_CREATE_SAVE_TABLE);
@@ -64,11 +73,11 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(SaveEntry.COLUMN_SAVE_DATA, bytes);
-
         long rowId = -1;
 
         try{
-            rowId = db.insertOrThrow(SaveEntry.TABLE_NAME, null, values);
+            // rowId = db.insertOrThrow(SaveEntry.TABLE_NAME, null, values);
+            rowId = db.insertWithOnConflict(SaveEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_ABORT);
         }
         catch(Exception e) {
             Log.d(" ", e.toString());
@@ -201,12 +210,26 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = this.getReadableDatabase();
         String requestString = "SELECT * FROM " + SaveEntry.TABLE_NAME;
         Cursor result = db.rawQuery(requestString, null);
-
+        // db.execSQL("DROP TABLE IF EXISTS '" + SaveEntry.TABLE_NAME + "'");
         while(result.moveToNext()){
             byte[] resultArray = result.getBlob(1);
-
-            savePreviews.add(deserializeCellGrid(resultArray));
+            SerializableCellGrid s = deserializeCellGrid((resultArray));
+            s.id = result.getLong(result.getColumnIndex("_id"));
+            savePreviews.add(s);
         }
+    }
+
+    public boolean isTableExists() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"+ SaveEntry.TABLE_NAME +"'", null);
+        if(cursor!=null) {
+            if(cursor.getCount()>0) {
+                cursor.close();
+                return true;
+            }
+            cursor.close();
+        }
+        return false;
     }
 
 }

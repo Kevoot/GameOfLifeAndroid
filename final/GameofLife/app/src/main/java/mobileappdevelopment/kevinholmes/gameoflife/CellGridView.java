@@ -555,8 +555,8 @@ public class CellGridView extends View {
         int [][] selectedArrayColors = new int[x2c-x1c][y2c-y1c];
 
         // Copy the selected cells
-        for(int i = 0; i < x2c-x1c; i++) {
-            for(int j = 0; j < y2c-y1c; j++) {
+        for(int i = 0; i < x2c-x1c - 1; i++) {
+            for(int j = 0; j < y2c-y1c - 1; j++) {
                 selectedArray[i][j] = mCellGrid[x1c+i][y1c+j];
             }
         }
