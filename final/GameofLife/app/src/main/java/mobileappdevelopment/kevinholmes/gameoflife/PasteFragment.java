@@ -41,7 +41,8 @@ public class PasteFragment extends DialogFragment{
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Object o =listView.getItemAtPosition(i);
-                selectedGrid = ((SerializableCellGrid)o).id;
+                SerializableCellGrid s = ((SerializableCellGrid)o);
+                selectedGrid = s.id;
                 dismiss();
             }
         });

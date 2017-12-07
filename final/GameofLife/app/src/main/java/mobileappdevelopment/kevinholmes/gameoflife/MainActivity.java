@@ -185,11 +185,10 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
 
                 if(!selectingFlag && !pastingFlag && initialized && !paintingFlag) {
                     pastingFlag = true;
-                    mCellGridView.pause();
-                    // TODO: Begin db fragment
-                            // sets the selected paste section
-                            showPasteFragment();
-                            // In db fragment, set selectedGrid to the id of the one tapped by the user
+                    if(showPasteFragment()) {
+                        mCellGridView.pause();
+                    }
+                    else return;
                 } else if (!selectingFlag && pastingFlag && initialized) {
                     boolean[][] cells = mPasteGrid.getCellGrid();
                     mCellGridView.transferCellsFromPaste(cells,
@@ -227,9 +226,14 @@ public class MainActivity extends AppCompatActivity implements PasteCloseListene
         initialized = false;
     }
 
-    private void showPasteFragment() {
-        PasteFragment pf = new PasteFragment();
-        pf.show(getFragmentManager(), "pasting");
+    private boolean showPasteFragment() {
+        try {
+            PasteFragment pf = new PasteFragment();
+            pf.show(getFragmentManager(), "pasting");
+        } catch(Exception e) {
+            return false;
+        }
+        return true;
     }
 
     @Override
