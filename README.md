@@ -1,6 +1,6 @@
-# Final Project For Mobile App Development
+# Conmway's Game of Life for Android
 
-Simulating cellular automata on an android drawable canvas
+Simulating cellular automata on an android drawable canvas. Includes support for touch-painting individual cells, saving segments to a local sql db, and configurable size/speed
 
 # App Mockup
 ![Alt text](final/GameofLife/AppMockup.png?raw=true)
