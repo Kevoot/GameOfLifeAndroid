@@ -1,4 +1,4 @@
-# Final Project - Members Kevin Holmes, Alex Buchanan, George Le, James Testa
+# Final Project For Mobile App Development
 
 Simulating cellular automata on an android drawable canvas
 
