@@ -11,10 +11,12 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import java.util.Random;
 
+import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mCellGridView;
 import static mobileappdevelopment.kevinholmes.gameoflife.MainActivity.mPasteGrid;
 
 public class CellGridView extends View {
@@ -34,7 +36,6 @@ public class CellGridView extends View {
     public final OnTouchListener mTouchSelectionHandler;
     public final OnTouchListener mTouchPaintHandler;
     public final OnTouchListener mTouchPasteHandler;
-
 
     //Added Kevin Raw View dimensions
     public int mViewSizeX, mViewSizeY;
@@ -228,7 +229,8 @@ public class CellGridView extends View {
                 paint.setColor(Color.rgb(0, 255, 200));
                 paint.setStrokeWidth(20);
                 paint.setStyle(Paint.Style.STROKE);
-                canvas.drawPoint(x, y, paint);
+                canvas.drawCircle(x, y, mCellRadius, mAliveCellPaint);
+                // canvas.drawPoint(x, y, paint);
                 BitmapDrawable bd = new BitmapDrawable(tempBg);
                 setBackgroundDrawable(bd);
                 mCurrentBg = bd.getBitmap();
